@@ -1,0 +1,2 @@
+# PythonGameServer
+这是一个用python写的非常简单的服务器
