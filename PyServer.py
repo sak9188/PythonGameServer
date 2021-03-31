@@ -1,10 +1,14 @@
 # -*- coding: UTF-8 -*-
+import GameTime
 import threading
 import asyncore
 import time
 import socket
 import Packer
 import Constant
+import collections
+
+ServerLock = threading.Lock()
 
 class NetServer(object):
 	def __init__(self):
@@ -76,7 +80,13 @@ class GameServer(asyncore.dispatcher, NetServer):
 		self.reuse_ids = []
 		self.connects = {}
 		self.message_handler = {}
+		# 会话id，用来标识sock
 		self.id = self.get_session_id()
+		# 当前时间
+		self.server_time = GameTime.GameTime()
+		# 注册时延的dict
+		self.tick_fun = collections.OrderedDict()
+		# 线程相关
 		self.thread = threading.Thread(target=self.run)
 		self.thread.start()
 		GameServer.InstanceList.append(self)
@@ -92,17 +102,19 @@ class GameServer(asyncore.dispatcher, NetServer):
 	def handle_message(self):
 		if len(self.messages) <= 0:
 			return
-		sid, msg = self.messages.pop(0)
-		msg_id, msg_body = Packer.unpack(msg)
-		# 这里要排除掉自己
-		if msg_id is None and sid != self.id:
-			# 如果此时解包消息出现了问题就断开链接
-			con = self.connects.get(sid)
-			reuse_id = con.handle_close()
-			self.remove_session(reuse_id)
-			self.reuse_ids.append(reuse_id)
-			return
-		self.trigger_event(msg_id, *msg_body)
+		with ServerLock:
+			with self.server_time:
+				sid, msg = self.messages.pop(0)
+				msg_id, msg_body = Packer.unpack(msg)
+				# 这里要排除掉自己
+				if msg_id is None and sid != self.id:
+					# 如果此时解包消息出现了问题就断开链接
+					con = self.connects.get(sid)
+					reuse_id = con.handle_close()
+					self.remove_session(reuse_id)
+					self.reuse_ids.append(reuse_id)
+					return
+				self.trigger_event(msg_id, *msg_body)
 	
 	def run(self):
 		# 注册消息
@@ -140,6 +152,44 @@ class GameServer(asyncore.dispatcher, NetServer):
 		self.remove_session(sid)
 		self.reuse_ids.append(sid)
 	
+	def reg_tick(self, fun, args, secs):
+		# 支持小数，也就是支持毫秒
+		des_time = self.time_stamp + secs
+		fun_list = self.tick_fun.get(des_time)
+		if not fun_list:
+			self.tick_fun[secs] = [(fun, args),]
+		else:
+			fun_list.append((fun, args))
+	
+	def seconds(self):
+		return int(self.server_time())
+
+	def minutes(self):
+		pass
+
+	def hours(self):
+		pass
+
+	def days(self):
+		pass
+
+	def update_time(self):
+		# 获得当前的时间, 触发当前时间Tick
+		# 如果服务器时间慢于服务器时间， 则会自动加速至现实时间
+		now_time = self.server_time.sync_real_time()
+		with self.server_time:
+			rm_list = []
+			for key, val in self.tick_fun.items():
+				if key > now_time:
+					break
+				for fun, arg in val:
+					fun(*arg)
+				self.tick_fun[key] = None
+				rm_list.append(key)
+			for key in rm_list:
+				self.tick_fun.pop(key)
+
+	
 	def after_connect(self, p):
 		print("after_connect", p)
 
@@ -147,12 +197,15 @@ class GameServer(asyncore.dispatcher, NetServer):
 # 生成一个服务器
 GameServer('localhost', 9090)
 
-
+# 主线程处理消息
+# 网络线程主要负责收集消息
 def message_loop():
 	while True:
 		for gs in GameServer.InstanceList:
+			# 休息1毫秒
 			time.sleep(0.001)
 			gs.handle_message()
+			gs.update_time()
 
 
 message_loop()
