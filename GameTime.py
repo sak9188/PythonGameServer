@@ -27,7 +27,7 @@ class GameTime(object):
     def __enter__(self):
         self.stop()
 
-    def __exit__(self):
+    def __exit__(self, exc_type, exc_val, exc_tb):
         self.start()
 
     def stop(self):

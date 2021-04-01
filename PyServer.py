@@ -7,7 +7,6 @@ import time
 import socket
 import Packer
 import Constant
-import collections
 
 ServerLock = threading.Lock()
 
@@ -103,19 +102,19 @@ class GameServer(asyncore.dispatcher, NetServer):
 	def handle_message(self):
 		if len(self.messages) <= 0:
 			return
-		with ServerLock:
-			with self.server_time:
-				sid, msg = self.messages.pop(0)
-				msg_id, msg_body = Packer.unpack(msg)
-				# 这里要排除掉自己
-				if msg_id is None and sid != self.id:
-					# 如果此时解包消息出现了问题就断开链接
-					con = self.connects.get(sid)
-					reuse_id = con.handle_close()
-					self.remove_session(reuse_id)
-					self.reuse_ids.append(reuse_id)
-					return
-				self.handle_reg_msg(msg_id, *msg_body)
+		# with ServerLock:
+		with self.server_time:
+			sid, msg = self.messages.pop(0)
+			msg_id, msg_body = Packer.unpack(msg)
+			# 这里要排除掉自己
+			if msg_id is None and sid != self.id:
+				# 如果此时解包消息出现了问题就断开链接
+				con = self.connects.get(sid)
+				reuse_id = con.handle_close()
+				self.remove_session(reuse_id)
+				self.reuse_ids.append(reuse_id)
+				return
+			self.handle_reg_msg(msg_id, *msg_body)
 	
 	def run(self):
 		# 注册消息
@@ -191,7 +190,6 @@ class GameServer(asyncore.dispatcher, NetServer):
 				rm_list.append(key)
 			for key in rm_list:
 				self.tick_fun.pop(key)
-
 	
 	def after_connect(self, p):
 		print("after_connect", p)
