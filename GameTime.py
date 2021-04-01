@@ -4,7 +4,6 @@ import time
 
 
 class GameTime(object):
-
     def __init__(self, time_resolution=0.001):
         # 与当前时间的差值
         self.offset_time = 0.0
@@ -18,10 +17,12 @@ class GameTime(object):
         self.time_rate = 1
         # 时间加速比率
         # TODO
+        # 时间偏移量 目的是为了测试 时间跳到未来某个点
+        self.offset_future_time = 0
 
     def __call__(self):
         "返回时间戳"
-        return time.time() - self.offset_time
+        return time.time() - self.offset_time + self.offset_future_time
     
     def __enter__(self):
         self.stop()
@@ -71,5 +72,10 @@ class GameTime(object):
             self.offset_time -= time_span
             self.update_time_rate()
         return self.__call__()
-
+    
+    def add_time(self, secs):
+        "增加服务器时间"
+        if secs < 0:
+            return
+        self.offset_future_time += secs
         

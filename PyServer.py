@@ -1,4 +1,5 @@
 # -*- coding: UTF-8 -*-
+from sortedcontainers import SortedDict
 import GameTime
 import threading
 import asyncore
@@ -85,7 +86,7 @@ class GameServer(asyncore.dispatcher, NetServer):
 		# 当前时间
 		self.server_time = GameTime.GameTime()
 		# 注册时延的dict
-		self.tick_fun = collections.OrderedDict()
+		self.tick_fun = SortedDict()
 		# 线程相关
 		self.thread = threading.Thread(target=self.run)
 		self.thread.start()
@@ -114,7 +115,7 @@ class GameServer(asyncore.dispatcher, NetServer):
 					self.remove_session(reuse_id)
 					self.reuse_ids.append(reuse_id)
 					return
-				self.trigger_event(msg_id, *msg_body)
+				self.handle_reg_msg(msg_id, *msg_body)
 	
 	def run(self):
 		# 注册消息
@@ -136,12 +137,14 @@ class GameServer(asyncore.dispatcher, NetServer):
 		self.connects[session_id] = None
 
 	def reg_msg_handler(self, msg_id, fun):
+		"注册消息函数"
 		reg_fun = self.message_handler.get(msg_id)
 		if reg_fun:
 			print("already has function id%d" % msg_id)
 		self.message_handler[msg_id] = fun
 
-	def trigger_event(self, msg_id, *args):
+	def handle_reg_msg(self, msg_id, *args):
+		"处理注册的消息"
 		fun = self.message_handler.get(msg_id)
 		if not fun:
 			print("there is no fun with msg_id is %d" % msg_id)
