@@ -4,6 +4,8 @@ import struct
 import cPickle as pickle
 from hashlib import md5
 
+# TODO 这里可以用CFFI或者Cython来优化一下
+
 MAX_PACK_BYTES = 4294967296/4/8/4 # 4个g/4/8/4 = 32M 单个打包数据量最大是128M
 
 def pack_msg(msg_type, msg_body):

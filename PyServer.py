@@ -209,12 +209,11 @@ def message_loop():
 			gs.update_time()
 
 
-message_loop()
+if __name__ is "__main__":
+	message_loop()	
 	# while True:
 	# 	pre_time = time.time()
 	# 	gs.handle_message()
 	# 	after_time = time.time()
 	# 	if after_time - pre_time > 0.017:
 	# 		# 这里说明已经处理了一帧了
-
-# Test
