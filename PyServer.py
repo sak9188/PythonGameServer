@@ -167,12 +167,15 @@ class GameServer(asyncore.dispatcher, NetServer):
 		return int(self.server_time())
 
 	def minutes(self):
+		# TODO 由上面的演化来
 		pass
 
 	def hours(self):
+		# TODO 由上面的演化来
 		pass
 
 	def days(self):
+		# TODO 由上面的演化来
 		pass
 
 	def update_time(self):
