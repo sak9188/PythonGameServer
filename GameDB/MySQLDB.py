@@ -1,6 +1,7 @@
 # -*- coding: UTF-8 -*-
 
 from DataType import DBDataType
+import DBCore
 import collections
 
 
@@ -49,7 +50,7 @@ class DBTable(object):
 		self.covered = covered
 		self.prikey = None
 		self.table_data = collections.OrderedDict()
-		
+
 	def add_col(self, value):
 		if isinstance(value, DBColumn):
 			if value.prikey:
@@ -78,9 +79,6 @@ class DBTable(object):
 		create_str = create_head + '\n' + create_body[:-2] + '\n' + create_tail
 		return create_str
 
-	def get_cursor(self):
-		pass
-
 	def construct(self):
 		cons_str = self.get_construct_str()
 		db_cur = self.get_cursor()
@@ -88,21 +86,59 @@ class DBTable(object):
 
 
 class DBConnect(object):
+	def __init__(self, database, conn, is_using=True):
+		self.database = database
+		self.conn = conn
+		self.is_using = is_using
+	
+	def set_use(self):
+		self.is_using = True
 
-	def create_table(name, covered=False):
-		pass
+	def create_table(self, dbtable):
+		if not isinstance(dbtable, DBTable):
+			raise TypeError("EXC not a instance of DBTable")
+		cur = self.conn.cursor()
+		cur.execute(dbtable.get_construct_str())
+	
+	def return_back_connect(self):
+		self.is_using = False
+		self.database.return_back(self)
+
+	def execute(self, exe_fun):
+		# TODO 这里可能要修改一下
+		try:
+			exe_fun(self)
+			self.conn.commit()
+		finally:
+			self.conn.rollback()
 
 
-class MySQLDB(object):
+class DataBase(object):
+	def __init__(self, host, port, user, passwd, db_name, charset="utf8", conn_max_num=10):
+		self.host = host
+		self.port = port
+		self.user = user
+		self.passwd = passwd
+		self.db_name = db_name
+		self.charset = charset
+		self.conn_max_num = conn_max_num
+		self.conn_deque = collections.deque(maxlen=conn_max_num)
+		self.using_conn = set()
 
-	def __init__(self, name):
-		pass
+	def get_connect(self):
+		if len(self.conn_deque) > 0:
+			conn = self.conn_deque.pop()
+			self.using_conn.add(conn)
+			return conn
+		if len(self.using_conn) >= self.conn_max_num:
+			return None
+		conn = DBCore.create_connet(self.host, self.port, self.user, self.passwd, self.db_name, self.charset)
+		self.using_conn.add(conn)
+		return conn
 
-	def get_connect():
-		pass
-
-	def get_cursor():
-		pass
+	def return_back(self, conn):
+		self.using_conn.remove(conn)
+		self.conn_deque.append(conn)
 
 
 def test():
@@ -112,4 +148,3 @@ def test():
 	table.add_col(DBColumn("email", DBDataType.VARCHAR(32)))
 	table.add_col(DBColumn("addres", DBDataType.VARCHAR(120)))
 	print(table.get_construct_str())
-	# print(DataType.DBDataType.TINYINT(True))
