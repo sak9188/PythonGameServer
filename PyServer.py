@@ -1,4 +1,5 @@
 # -*- coding: UTF-8 -*-
+from imp import load_module
 from sortedcontainers import SortedDict
 import GameTime
 import threading
@@ -7,6 +8,8 @@ import time
 import socket
 import Packer
 import Constant
+import imp
+import os
 
 ServerLock = threading.Lock()
 
@@ -200,14 +203,45 @@ class GameServer(asyncore.dispatcher, NetServer):
 		print("after_connect", p)
 
 
+MODULE_EXTENSIONS = ('.py', '.pyc', '.pyo')
+def package_contents(package_name, path=['.']):
+	global MODULE_EXTENSIONS
+
+	file, pathname, _ = imp.find_module(package_name, path)
+	if file:
+		# raise ImportError('Not a package: %r', package_name)
+		return
+
+	module_set = set()
+	path_module_name = pathname.replace('\\', '.')[2:]
+	for module in os.listdir(pathname):
+		if module.endswith(MODULE_EXTENSIONS):
+			module_set.add(path_module_name+"."+os.path.splitext(module)[0])
+		else:
+			contents = package_contents(module, [pathname])
+			if not contents:
+				continue
+			module_set.update(contents)
+	return module_set
+
+
 def load_script():
 	server = GameServer.Instance
+	# 模块预载
 	# Core下所有模块
 	# GameDB下所有模块
 	# GameEvent下所有模块
 	must_loaded = [
-		"Core.",
-		"GameDB.",
-		"GameEvent."
+		"Core",
+		"GameDB",
+		"GameEvent"
 	]
-	pass
+
+	module_set = set()
+	for module in must_loaded:
+		pass
+	return package_contents("Core")
+
+# print load_script()
+
+import Core.__init__
