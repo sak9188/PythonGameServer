@@ -10,6 +10,7 @@ import Packer
 import Constant
 import imp
 import os
+import traceback
 
 ServerLock = threading.Lock()
 
@@ -239,9 +240,16 @@ def load_script():
 
 	module_set = set()
 	for module in must_loaded:
-		pass
-	return package_contents("Core")
+		module_set.update(package_contents(module))
+
+	for module_name in module_set:
+		try:
+			__import__(module_name)
+		except:
+			traceback.print_exc()
+	
+	return module_set
 
 # print load_script()
 
-import Core.__init__
+load_script()

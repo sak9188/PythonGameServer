@@ -2,8 +2,6 @@
 import os
 import cPickle as pickle
 
-from GameEvent import Event
-
 # 这里记录了所有的ID 游戏中的事件
 ID_Table = {}
 
@@ -73,7 +71,7 @@ def reg_name(fun_name):
 		if val == start_id:
 			continue
 		ID_Name_Dict[fun_name] = start_id
-		return start_id
+		return start_id	
 
 
 def clear_trash_id():
@@ -89,5 +87,6 @@ def save_table():
 	with open('./ID_Name.bin', "wb") as f:
 		pickle.dump(ID_Name_Dict, f)
 
+init_module()
 
-Event.reg_event(Event.AfterInitScript, save_table)
+# Event.reg_event(Event.AfterInitScript, save_table)

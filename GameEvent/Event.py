@@ -5,8 +5,7 @@ from Core import MakeID
 RegFunDict = {}
 
 # 分配ID的对象
-Allot = MakeID.reg_name("Event")
-
+Allot = MakeID.make_id_fun("Event")
 
 def reg_event(event_id, fun):
 	global RegFunDict
@@ -26,9 +25,11 @@ def trigger_event(event_id, *params):
 
 def allot_event_id(name):
 	global Allot
-	Allot.allot_id(name)
+	return Allot.allot_id(name)
 
 # =================================================
 # 下面是事件定义id
 # =================================================
 AfterInitScript = allot_event_id("AfterInitScript")
+
+print "import event"

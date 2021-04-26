@@ -152,5 +152,3 @@ class DBDataType(object):
 
 if __name__ == "__main__":
 	print(DBDataType.TINYINT(True))
-
-print "Test"
