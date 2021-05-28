@@ -1,12 +1,11 @@
 # -*- coding: UTF-8 -*-
-from imp import load_module
-from sortedcontainers import SortedDict
-import GameTime
 import threading
 import asyncore
 import time
 import socket
-import Packer
+from Core.Extent.sortedcontainers import SortedDict
+from Core import GameTime
+from Core import Packer
 from GameMessage import Message
 import imp
 import os
