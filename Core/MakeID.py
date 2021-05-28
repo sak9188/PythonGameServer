@@ -5,7 +5,7 @@ import cPickle as pickle
 # 这里记录了所有的ID 游戏中的事件
 ID_Table = {}
 
-# 每1w个做一次分割
+# 每1w个做一次分割 最大为 21亿
 ID_STEP_MAX = 10000
 
 # 这里记录了每种不一样的id顺序
@@ -49,29 +49,46 @@ def init_module():
 
 	if not ID_Name_Dict:
 		if os.path.isfile('./ID_Name.bin'):
-			ID_Name_Dict = pickle.load('./ID_Name.bin')
+			with open('./ID_Name.bin', "rb") as f:
+				ID_Name_Dict = pickle.load(f)
+		else:
+			ID_Name_Dict = {}
 
 	if not ID_Table:
 		if os.path.isfile('./ID_Table.bin'):
-			ID_Name_Dict = pickle.load('./ID_Table.bin')
+			with open('./ID_Table.bin', "rb") as f:
+				ID_Name_Dict = pickle.load(f)
+		else:
+			ID_Table = {}
 
 
 def make_id_fun(fun_name):
+	"""
+	这里会根据函数的名字来确定AllotID对象
+	"""
 	global ID_Name_Dict
 	start_id = ID_Name_Dict.get(fun_name)
 	if start_id is None:
 		start_id = reg_name(fun_name)
+	assert start_id
 	return AllotID(start_id, fun_name)
 
 
 def reg_name(fun_name):
 	global ID_Name_Dict
 	start_id = 1
-	for val in ID_Name_Dict.values():
-		if val == start_id:
-			continue
-		ID_Name_Dict[fun_name] = start_id
-		return start_id	
+
+	val_list = ID_Name_Dict.values()
+	if val_list:
+		for val in val_list.sort(lambda x: x):
+			if val == start_id:
+				start_id += 1
+				continue
+			break
+
+	# 这里放了命名空间
+	ID_Name_Dict[fun_name] = start_id
+	return start_id
 
 
 def clear_trash_id():
@@ -84,8 +101,8 @@ def save_table():
 
 	with open('./ID_Name.bin', "wb") as f:
 		pickle.dump(ID_Name_Dict, f)
-	with open('./ID_Name.bin', "wb") as f:
-		pickle.dump(ID_Name_Dict, f)
+	with open('./ID_Table.bin', "wb") as f:
+		pickle.dump(ID_Table, f)
 
 init_module()
 

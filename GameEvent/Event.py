@@ -30,6 +30,5 @@ def allot_event_id(name):
 # =================================================
 # 下面是事件定义id
 # =================================================
-AfterInitScript = allot_event_id("AfterInitScript")
-
-print "import event"
+AfterInitScript = allot_event_id('AfterInitScript')
+AfterInitServer = allot_event_id('AfterInitServer')
