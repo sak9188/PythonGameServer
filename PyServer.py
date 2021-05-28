@@ -7,7 +7,7 @@ import asyncore
 import time
 import socket
 import Packer
-import Constant
+from GameMessage import Message
 import imp
 import os
 import traceback
@@ -62,7 +62,7 @@ class Session(asyncore.dispatcher_with_send, NetServer):
 	def handle_close(self):
 		self.clear_buffer()
 		# 打包要退出的消息
-		msg = Packer.pack_msg(Constant.MS_Disconnection, self.id)
+		msg = Packer.pack_msg(Message.MS_Disconnection, self.id)
 		self.messages.append((self.id, msg))
 		self.messages = []
 		self.id = 0
@@ -124,8 +124,8 @@ class GameServer(asyncore.dispatcher, NetServer):
 	
 	def run(self):
 		# 注册消息
-		self.reg_msg_handler(Constant.MS_Disconnection, self.close_session)
-		self.reg_msg_handler(Constant.MS_Connect, self.after_connect)
+		self.reg_msg_handler(Message.MS_Disconnection, self.close_session)
+		self.reg_msg_handler(Message.MS_Connect, self.after_connect)
 		# 主消息循环
 		asyncore.loop(timeout=0.01)
 

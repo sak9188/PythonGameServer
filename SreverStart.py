@@ -4,18 +4,18 @@ import PyServer
 
 # 主线程处理消息
 # 网络线程主要负责收集消息
-def message_loop():
+def message_loop(GameServer):
 	while True:
 		# 休息1毫秒
 		time.sleep(0.001)
-		GS.handle_message()
-		GS.update_time()
+		GameServer.handle_message()
+		GameServer.update_time()
 
 
 if __name__ is "__main__":
 	# 生成一个服务器
 	GS = PyServer.GameServer('localhost', 9090)
-	message_loop()	
+	message_loop(GS)	
 	# while True:
 	# 	pre_time = time.time()
 	# 	gs.handle_message()

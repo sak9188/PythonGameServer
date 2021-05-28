@@ -5,14 +5,16 @@
 # 消息体 任意字节
 # 哈希数据校验 16字节（消息头+消息类型+消息体）
 
-START_ID = -1
+# from Core import MakeID
 
-def allot_msg(name):
-	global START_ID
-	"模块内唯一的消息id，不会根据服务器实例不同而不同"
-	START_ID += 1
-	return START_ID
 
-MS_HeartBeat = allot_msg("心跳")
-MS_Connect = allot_msg("链接服务器")
-MS_Disconnection = allot_msg("断开链接")
+# # 分配ID的对象
+# Allot = MakeID.make_id_fun("Message")
+
+# def allot_msg_id(name):
+# 	global Allot
+# 	return Allot.allot_id(name)
+
+# MS_HeartBeat = allot_msg_id("心跳")
+# MS_Connect = allot_msg_id("链接服务器")
+# MS_Disconnection = allot_msg_id("断开链接")

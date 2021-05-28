@@ -57,7 +57,7 @@ def init_module():
 	if not ID_Table:
 		if os.path.isfile('./ID_Table.bin'):
 			with open('./ID_Table.bin', "rb") as f:
-				ID_Name_Dict = pickle.load(f)
+				ID_Table = pickle.load(f)
 		else:
 			ID_Table = {}
 
@@ -80,7 +80,8 @@ def reg_name(fun_name):
 
 	val_list = ID_Name_Dict.values()
 	if val_list:
-		for val in val_list.sort(lambda x: x):
+		val_list.sort(key=lambda x: x)
+		for val in val_list:
 			if val == start_id:
 				start_id += 1
 				continue
