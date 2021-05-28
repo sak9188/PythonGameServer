@@ -2,6 +2,7 @@
 
 import struct
 import cPickle as pickle
+from Core import Constant
 # from hashlib import md5
 
 # TODO 这里可以用CFFI或者Cython来优化一下
@@ -21,14 +22,14 @@ def pack_msg(msg_type, msg_body):
 	# 注意到这里可能并不需要校验,因为TCP链接自带校验
 	# hash_sum = md5(dumps_bytes).digest()
 	# 注意: 这里是小端存储
-	msg = struct.pack("IH%ds" % len_bytes, len_bytes+6, msg_type, dumps_bytes)
+	msg = struct.pack("IH%ds" % len_bytes, len_bytes + Constant.MessageHead+Constant.MessageType, msg_type, dumps_bytes)
 	return msg
 
 
 def unpack(msg):
-	msg_size = get_pack_size(msg[:4])
-	msg_id = get_pack_msg_id(msg[4:6])
-	msg_body_bytes = msg[6:msg_size]
+	msg_size = get_pack_size(msg[:Constant.MessageHead])
+	msg_id = get_pack_msg_id(msg[Constant.MessageHead : Constant.MessageHead+Constant.MessageType])
+	msg_body_bytes = msg[Constant.MessageHead+Constant.MessageType : msg_size]
 	msg_body = pickle.loads(msg_body_bytes)
 	# msg_hash = msg[msg_size+6:]
 	# if md5(msg_body_bytes).digest() != msg_hash:
@@ -38,10 +39,10 @@ def unpack(msg):
 
 
 def get_pack_size(size_bytes):
-	assert len(size_bytes) == 4
+	assert len(size_bytes) == Constant.MessageHead
 	return struct.unpack("I", size_bytes)[0]
 
 
 def get_pack_msg_id(size_bytes):
-	assert len(size_bytes) == 2
+	assert len(size_bytes) == Constant.MessageType
 	return struct.unpack("H", size_bytes)[0]

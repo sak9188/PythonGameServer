@@ -2,7 +2,7 @@
 import os
 import cPickle as pickle
 
-# 这里记录了所有的ID 游戏中的事件
+# 这里记录了所有的ID
 ID_Table = {}
 
 # 每1w个做一次分割 最大为 21亿
@@ -20,6 +20,15 @@ class IDClass(object):
 	def __init__(self, name, value):
 		self.name = name
 		self.value = value
+
+class IDCollection:
+	def __init__(self):
+		self.start_id = None
+		self.id_set = set()
+	
+	def add_id(self, id):
+		if id in self.id_set:
+			pass
 
 
 class AllotID(object):
