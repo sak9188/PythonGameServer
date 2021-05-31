@@ -10,10 +10,30 @@ from Core import MakeID
 # 分配ID的对象
 Allot = MakeID.make_id_fun("Message")
 
+# 消息注册列表
+MSG_HandlerDict = {}
+
 
 def allot_msg_id(name, id_val=None):
 	global Allot
 	return Allot.allot_id(name, id_val)
+
+
+
+
+def reg_msg_handler(msg_id, fun):
+	'''
+	注册消息函数
+	'''
+	global MSG_HandlerDict
+	reg_fun = MSG_HandlerDict.get(msg_id)
+	if reg_fun:
+		print("already has function id%d" % msg_id)
+	MSG_HandlerDict[msg_id] = fun
+
+
+def handle_reg_msg():
+	pass
 
 
 # ==============================
