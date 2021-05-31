@@ -21,7 +21,9 @@ class GameTime(object):
         self.offset_future_time = 0
 
     def __call__(self):
-        "返回时间戳"
+        '''
+        返回时间戳
+        '''
         return time.time() - self.offset_time + self.offset_future_time
     
     def __enter__(self):
@@ -31,7 +33,9 @@ class GameTime(object):
         self.start()
 
     def stop(self):
-        "暂停时间"
+        '''
+        暂停时间
+        '''
         self.stop_time = time.time()
         pass
 
@@ -66,7 +70,10 @@ class GameTime(object):
             self.time_rate = 1
 
     def sync_real_time(self):
-        "同步真实世界的时间，并且返回给服务器当前时间"
+        '''
+        同步真实世界的时间，并且返回给服务器当前时间
+        '''
+
         if self.offset_time > 0:
             time_span = self.time_rate * self.time_span
             self.offset_time -= time_span
@@ -74,7 +81,9 @@ class GameTime(object):
         return self.__call__()
     
     def add_time(self, secs):
-        "增加服务器时间"
+        '''
+        增加服务器时间
+        '''
         if secs < 0:
             return
         self.offset_future_time += secs

@@ -14,6 +14,9 @@ ID_Name_Dict = {}
 # 这里记录了所有在使用的ID
 ID_InUse = set()
 
+# 这里记录了真实使用的ID
+ID_RealUse = set()
+
 
 class IDClass(object):
 	__slots__ = ["name", "value"]
@@ -42,19 +45,39 @@ class AllotID(object):
 		# 首先判断是不是已经在上次分配了id
 		temp_allot_id = ID_Table.get(name)
 		if temp_allot_id is not None:
+			# 添加真正使用的记录
+
+			ID_RealUse.add(temp_allot_id)
 			return temp_allot_id
 
+		# 这里要判断是否已经超出极限了，因为每一个AllotID最多分配1w个
+		if self.next_id == ID_STEP_MAX:
+			print('already allotted to max value')
+			return
+
+		# 这里有一个问题, 那就是你不知道next_id是不是对的
+		# 因为有可能 1 3 4有分配, 但是2并没有分配
 		temp_allot_id = self.start_id + self.next_id
+
+		# 所以要在这里尝试引用一个机制
+		while temp_allot_id in ID_InUse:
+			# 尝试在这里找到一个没有用过的id
+			self.next_id += 1
+			temp_allot_id = self.start_id + self.next_id
+
 		ID_Table[name] = temp_allot_id
 		self.next_id += 1
 
 		# 添加使用记录
 		ID_InUse.add(temp_allot_id)
+
+		# 添加真正使用的记录
+		ID_RealUse.add(temp_allot_id)
 		return temp_allot_id
 
 
 def init_module():
-	global ID_Name_Dict, ID_Table
+	global ID_Name_Dict, ID_Table, ID_InUse
 
 	if not ID_Name_Dict:
 		if os.path.isfile('./ID_Name.bin'):
@@ -69,6 +92,19 @@ def init_module():
 				ID_Table = pickle.load(f)
 		else:
 			ID_Table = {}
+	
+	# 在这里载入所有的已经分配的int集合
+	clear_set = {}
+	for key, int_val in ID_Table.iteritems():
+		if int_val in ID_InUse:
+			print("replicated key % s" % key)
+			# 这里要清理垃圾集合
+			clear_set.add(key)
+			continue
+		ID_InUse.add(int_val)
+	
+	for key in clear_set:
+		ID_Table.pop(key)
 
 
 def make_id_fun(fun_name):
@@ -102,8 +138,25 @@ def reg_name(fun_name):
 
 
 def clear_trash_id():
-	#TODO 载入服务器以后，可以通过这个函数来清理垃圾ID
-	pass
+	'''
+	清理垃圾ID，当使用者改变对应ID的名字的时候，原先记录在磁盘上的记录就会变成垃圾ID
+	所以必须得清理一下，当使用者改变名字以后还可以把原来的给清理掉
+	'''
+	global ID_RealUse, ID_Table
+	# 这里应该是一样的
+	if len(ID_RealUse) == len(ID_Table):
+		return
+
+	# 如果不一样
+	trash_set = set()
+	for key, val in ID_Table.iteritems():
+		if not val in ID_RealUse:
+			trash_set.add(key)
+	
+	# 扔掉所有的垃圾ID
+	for key in trash_set:
+		ID_Table.pop(key)
+
 
 def save_table():
 	# 每次载入了所有脚本以后，就要保存的本地上
@@ -115,5 +168,3 @@ def save_table():
 		pickle.dump(ID_Table, f)
 
 init_module()
-
-# Event.reg_event(Event.AfterInitScript, save_table)
