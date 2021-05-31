@@ -23,9 +23,9 @@ def trigger_event(event_id, *params):
 		fun(*params)
 
 
-def allot_event_id(name):
+def allot_event_id(name, id_val=None):
 	global Allot
-	return Allot.allot_id(name)
+	return Allot.allot_id(name, id_val)
 
 # =================================================
 # 下面是事件定义id

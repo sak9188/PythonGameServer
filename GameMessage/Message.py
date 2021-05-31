@@ -10,10 +10,15 @@ from Core import MakeID
 # 分配ID的对象
 Allot = MakeID.make_id_fun("Message")
 
-def allot_msg_id(name):
-	global Allot
-	return Allot.allot_id(name)
 
+def allot_msg_id(name, id_val=None):
+	global Allot
+	return Allot.allot_id(name, id_val)
+
+
+# ==============================
+# 这里分配消息
+# ==============================
 MS_HeartBeat = allot_msg_id("心跳")
 MS_Connect = allot_msg_id("链接服务器")
 MS_Disconnection = allot_msg_id("断开链接")

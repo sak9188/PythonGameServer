@@ -6,7 +6,10 @@ import cPickle as pickle
 ID_Table = {}
 
 # 每1w个做一次分割 最大为 21亿
-ID_STEP_MAX = 10000
+# 其中0-10w个为预留id, 主要是为了给手动分配id的设置的( 以好接入其他系统 )
+# Q:为啥是10w?
+# A:10w > 65535
+ID_STEP_MAX = 100000
 
 # 这里记录了每种不一样的id顺序
 ID_Name_Dict = {}
@@ -40,17 +43,26 @@ class AllotID(object):
 		self.name = fun_name
 		self.next_id = 0
 
-	def allot_id(self, name):
+	def allot_id(self, name, id_val=None):
 		global ID_Table, ID_STEP_MAX, ID_InUse
+		# 如果是手动指定的话, 那么这个优先级最高
+		if id_val is not None:
+			val = ID_Table.get(name)
+			if val is not None and val != id_val:
+				print('cover the old key: %s, val: %d' % (name, val))
+			ID_Table[name] = id_val
+			# 添加真正使用的记录
+			ID_RealUse.add(id_val)
+			return
+
 		# 首先判断是不是已经在上次分配了id
 		temp_allot_id = ID_Table.get(name)
 		if temp_allot_id is not None:
 			# 添加真正使用的记录
-
 			ID_RealUse.add(temp_allot_id)
 			return temp_allot_id
 
-		# 这里要判断是否已经超出极限了，因为每一个AllotID最多分配1w个
+		# 这里要判断是否已经超出极限了，因为每一个AllotID最多分配10w个
 		if self.next_id == ID_STEP_MAX:
 			print('already allotted to max value')
 			return
