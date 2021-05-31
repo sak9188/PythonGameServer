@@ -5,3 +5,6 @@
 # 消息体 任意字节
 MessageHead = 4
 MessageType = 2
+
+def get_size_msg_head():
+	return MessageHead + MessageType

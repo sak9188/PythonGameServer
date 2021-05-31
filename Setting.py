@@ -7,19 +7,19 @@ ConnectParams = ("localhost", 3306, "root", "hkkk")
 WorldSever = ('localhost', 9090)
 
 # 这里是服务器主进程
-MainServer = ('localhost', 9090)
+MainServer = ('localhost', 9190)
 
 # 这里是服务器网关进程
-GateServer = ('localhost', 9090)
+GateServer = ('localhost', 9290)
 
 # 这里是服务器聊天进程
-ChatServer = ('localhost', 9090)
+ChatServer = ('localhost', 9390)
 
 # 这里是服务器世界进程
-ChatServer = ('localhost', 9090)
+ChatServer = ('localhost', 9490)
 
 # 这里是数据库进程
-DBSever = ('localhost', 9090)
+DBSever = ('localhost', 9590)
 
 # 实验性质的进程
 ComputeSever = () # 大规模运算服务器

@@ -13,33 +13,33 @@ GUID_BUFFER = []
 GUIDLock = threading.Lock()
 
 def _gen_uuid():
-    '''
-    生成uuid
-    '''
-    if len(GUID_BUFFER) > MAX_BUFFER_UUID:
-        return
-    for x in xrange(PER_SEC_GEN):
-        uid = uuid.uuid1()
-        GUID_BUFFER.append(uid)
+	'''
+	生成uuid
+	'''
+	if len(GUID_BUFFER) > MAX_BUFFER_UUID:
+		return
+	for x in xrange(PER_SEC_GEN):
+		uid = uuid.uuid1()
+		GUID_BUFFER.append(uid)
 
 def get_uuid():
-    '''
-    获得uuid
-    '''
-    with GUIDLock:
-        if len(GUID_BUFFER) <= 0:
-            # 要是不够了就生成一下
-            _gen_uuid()
-        return GUID_BUFFER.pop(0)
+	'''
+	获得uuid
+	'''
+	with GUIDLock:
+		if len(GUID_BUFFER) <= 0:
+			# 要是不够了就生成一下
+			_gen_uuid()
+		return GUID_BUFFER.pop(0)
 
 def _run():
-    while True:
-        _gen_uuid()
-        time.sleep(1)
+	while True:
+		_gen_uuid()
+		time.sleep(1)
 
 
 thread_obj = None
 def start():
-    thread_obj = threading.Thread(target=_run)
-    thread_obj.setDaemon(True)
-    thread_obj.start()
+	thread_obj = threading.Thread(target=_run)
+	thread_obj.setDaemon(True)
+	thread_obj.start()

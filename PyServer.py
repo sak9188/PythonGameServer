@@ -10,8 +10,10 @@ from GameMessage import Message
 import imp
 import os
 import traceback
+from Core import Constant
 
-ServerLock = threading.Lock()
+# 不知道这个锁有没有可能会被用到
+# ServerLock = threading.Lock()
 
 class NetServer(object):
 	def __init__(self):
@@ -23,14 +25,11 @@ class NetServer(object):
 	def clear_buffer(self):
 		self.read_buffer = ''
 	
-	def get_head_size(self):
-		return 4+2+16 #除去body以外所有的字节
-	
 	def can_get_msg(self):
-		if len(self.read_buffer) <= self.get_head_size():
+		if len(self.read_buffer) <= Constant.get_size_msg_head():
 			return False
 		msg_body_size = Packer.get_pack_size(self.read_buffer[:4])
-		msg_size = self.get_head_size()+msg_body_size # 这里已经包括了头大小
+		msg_size = Constant.get_size_msg_head()+msg_body_size # 这里已经包括了头大小
 		return len(self.read_buffer) >= msg_size
 
 	def get_msg(self):
@@ -38,7 +37,7 @@ class NetServer(object):
 		if not self.can_get_msg():
 			return
 		msg_body_size = Packer.get_pack_size(self.read_buffer[:4])
-		msg_size = self.get_head_size()+msg_body_size # 这里已经包括了头大小
+		msg_size = Constant.get_size_msg_head()+msg_body_size # 这里已经包括了头大小
 		msg = self.read_buffer[:msg_size]
 		self.read_buffer = self.read_buffer[msg_size:]
 		self.messages.append((self.id, msg))
@@ -119,6 +118,7 @@ class GameServer(asyncore.dispatcher, NetServer):
 				self.remove_session(reuse_id)
 				self.reuse_ids.append(reuse_id)
 				return
+			# TODO 这里要单独分到一个独立的模块里
 			self.handle_reg_msg(msg_id, *msg_body)
 	
 	def run(self):
@@ -141,14 +141,18 @@ class GameServer(asyncore.dispatcher, NetServer):
 		self.connects[session_id] = None
 
 	def reg_msg_handler(self, msg_id, fun):
-		"注册消息函数"
+		'''
+		注册消息函数
+		'''
 		reg_fun = self.message_handler.get(msg_id)
 		if reg_fun:
 			print("already has function id%d" % msg_id)
 		self.message_handler[msg_id] = fun
 
 	def handle_reg_msg(self, msg_id, *args):
-		"处理注册的消息"
+		'''
+		处理注册的消息
+		'''
 		fun = self.message_handler.get(msg_id)
 		if not fun:
 			print("there is no fun with msg_id is %d" % msg_id)
