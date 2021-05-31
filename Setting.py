@@ -9,8 +9,12 @@ WorldSever = ('localhost', 9090)
 # 这里是服务器主进程
 MainServer = ('localhost', 9190)
 
-# 这里是服务器网关进程
-GateServer = ('localhost', 9290)
+# 这里是服务器网关进程组
+GateServers = [('localhost', 9290),
+				('localhost', 9291),
+				('localhost', 9292),
+				('localhost', 9293),
+				('localhost', 9294)]
 
 # 这里是服务器聊天进程
 ChatServer = ('localhost', 9390)

@@ -7,9 +7,6 @@ from Core.Extent.sortedcontainers import SortedDict
 from Core import GameTime
 from Core import Packer
 from GameMessage import Message
-import imp
-import os
-import traceback
 from Core import Constant
 
 # 不知道这个锁有没有可能会被用到
@@ -71,18 +68,19 @@ class Session(asyncore.dispatcher_with_send, NetServer):
 class GameServer(asyncore.dispatcher, NetServer):
 	Instance = None
 
-	def __init__(self, host, port):
+	def __init__(self, connect_params, process_type):
 		if GameServer.Instance is not None:
 			return
 		asyncore.dispatcher.__init__(self)
 		NetServer.__init__(self)
 		self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
 		self.set_reuse_addr()
-		self.bind((host, port))
+		self.bind(connect_params)
 		self.listen(32)
 		self.start_sesssion_id = int(str(int(time.time()))[-3:])*10000
 		self.reuse_ids = []
 		self.connects = {}
+		self.process_type = process_type
 		# 会话id，用来标识sock
 		self.id = self.get_session_id()
 		# 当前时间
@@ -187,69 +185,4 @@ class GameServer(asyncore.dispatcher, NetServer):
 		print("after_connect", p)
 
 
-MODULE_EXTENSIONS = ('.py', '.pyc', '.pyo')
-def package_contents(package_name, path=['.']):
-	global MODULE_EXTENSIONS
-
-	if package_name.find('.') >= 0:
-		path_list = package_name.split('.')
-		package_name = path_list[-1]
-		path.extend(path_list[:-1])
-
-	try:
-		file, pathname, _ = imp.find_module(package_name, path)
-		if file:
-			# raise ImportError('Not a package: %r', package_name)
-			return
-	except ImportError:
-		print package_name, path
-		return
-
-	module_set = set()
-	path_module_name = pathname.replace('\\', '.')
-	for module in os.listdir(pathname):
-		if module.endswith(MODULE_EXTENSIONS):
-			if path_module_name.startswith('..'):
-				path_module_name = path_module_name[2:]
-			module_set.add(path_module_name+"."+os.path.splitext(module)[0])
-		else:
-			contents = package_contents(module, [pathname])
-			if not contents:
-				continue
-			module_set.update(contents)
-	return module_set
-
-
-def load_script():
-	server = GameServer.Instance
-	# 模块预载
-	# Core下所有模块
-	# GameDB下所有模块
-	# GameEvent下所有模块
-	'''
-		"Core",
-		"GameDB",
-		"GameEvent",
-	'''
-	must_loaded = [
-		"Core",
-		"GameDB",
-		"GameEvent",
-		"GameProcess.ServerLogic"
-	]
-
-	module_set = set()
-	for module in must_loaded:
-		module_set.update(package_contents(module))
-	
-	for module_name in module_set:
-		try:
-			__import__(module_name)
-		except:
-			traceback.print_exc()
-	
-	return module_set
-
-# print load_script()
-
-load_script()
+import Core.ImportTool
