@@ -83,7 +83,6 @@ class GameServer(asyncore.dispatcher, NetServer):
 		self.start_sesssion_id = int(str(int(time.time()))[-3:])*10000
 		self.reuse_ids = []
 		self.connects = {}
-		self.message_handler = {}
 		# 会话id，用来标识sock
 		self.id = self.get_session_id()
 		# 当前时间
@@ -123,8 +122,8 @@ class GameServer(asyncore.dispatcher, NetServer):
 	
 	def run(self):
 		# 注册消息
-		self.reg_msg_handler(Message.MS_Disconnection, self.close_session)
-		self.reg_msg_handler(Message.MS_Connect, self.after_connect)
+		Message.reg_msg_handler(Message.MS_Disconnection, self.close_session)
+		Message.reg_msg_handler(Message.MS_Connect, self.after_connect)
 		# 主消息循环
 		asyncore.loop(timeout=0.01)
 
@@ -139,25 +138,6 @@ class GameServer(asyncore.dispatcher, NetServer):
 	
 	def remove_session(self, session_id):
 		self.connects[session_id] = None
-
-	def reg_msg_handler(self, msg_id, fun):
-		'''
-		注册消息函数
-		'''
-		reg_fun = self.message_handler.get(msg_id)
-		if reg_fun:
-			print("already has function id%d" % msg_id)
-		self.message_handler[msg_id] = fun
-
-	def handle_reg_msg(self, msg_id, *args):
-		'''
-		处理注册的消息
-		'''
-		fun = self.message_handler.get(msg_id)
-		if not fun:
-			print("there is no fun with msg_id is %d" % msg_id)
-			return
-		fun(*args)
 	
 	def close_session(self, sid):
 		self.remove_session(sid)
@@ -211,15 +191,26 @@ MODULE_EXTENSIONS = ('.py', '.pyc', '.pyo')
 def package_contents(package_name, path=['.']):
 	global MODULE_EXTENSIONS
 
-	file, pathname, _ = imp.find_module(package_name, path)
-	if file:
-		# raise ImportError('Not a package: %r', package_name)
+	if package_name.find('.') >= 0:
+		path_list = package_name.split('.')
+		package_name = path_list[-1]
+		path.extend(path_list[:-1])
+
+	try:
+		file, pathname, _ = imp.find_module(package_name, path)
+		if file:
+			# raise ImportError('Not a package: %r', package_name)
+			return
+	except ImportError:
+		print package_name, path
 		return
 
 	module_set = set()
-	path_module_name = pathname.replace('\\', '.')[2:]
+	path_module_name = pathname.replace('\\', '.')
 	for module in os.listdir(pathname):
 		if module.endswith(MODULE_EXTENSIONS):
+			if path_module_name.startswith('..'):
+				path_module_name = path_module_name[2:]
 			module_set.add(path_module_name+"."+os.path.splitext(module)[0])
 		else:
 			contents = package_contents(module, [pathname])
@@ -235,16 +226,22 @@ def load_script():
 	# Core下所有模块
 	# GameDB下所有模块
 	# GameEvent下所有模块
+	'''
+		"Core",
+		"GameDB",
+		"GameEvent",
+	'''
 	must_loaded = [
 		"Core",
 		"GameDB",
-		"GameEvent"
+		"GameEvent",
+		"GameProcess.ServerLogic"
 	]
 
 	module_set = set()
 	for module in must_loaded:
 		module_set.update(package_contents(module))
-
+	
 	for module_name in module_set:
 		try:
 			__import__(module_name)

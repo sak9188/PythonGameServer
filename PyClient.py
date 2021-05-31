@@ -7,6 +7,7 @@ import sys
 import Packer
 import Constant
 import StringIO
+import Setting
 
 MESSAGES = []
 
@@ -71,6 +72,6 @@ class GameClient(asyncore.dispatcher):
 		sys.exit()
 	
 
-client = GameClient('localhost', 9090)
+client = GameClient(*Setting.MainServer)
 asyncore.loop(timeout=0.01)
 

@@ -19,8 +19,6 @@ def allot_msg_id(name, id_val=None):
 	return Allot.allot_id(name, id_val)
 
 
-
-
 def reg_msg_handler(msg_id, fun):
 	'''
 	注册消息函数
@@ -32,8 +30,16 @@ def reg_msg_handler(msg_id, fun):
 	MSG_HandlerDict[msg_id] = fun
 
 
-def handle_reg_msg():
-	pass
+def handle_reg_msg(msg_id, *args):
+	'''
+	处理注册的消息
+	'''
+	global MSG_HandlerDict
+	fun = MSG_HandlerDict.get(msg_id)
+	if not fun:
+		print("there is no fun with msg_id is %d" % msg_id)
+		return
+	fun(*args)
 
 
 # ==============================
