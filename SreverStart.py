@@ -15,10 +15,4 @@ def message_loop(GameServer):
 if __name__ is "__main__":
 	# 生成一个服务器
 	GS = PyServer.GameServer('localhost', 9090)
-	message_loop(GS)	
-	# while True:
-	# 	pre_time = time.time()
-	# 	gs.handle_message()
-	# 	after_time = time.time()
-	# 	if after_time - pre_time > 0.017:
-	# 		# 这里说明已经处理了一帧了
+	message_loop(GS)

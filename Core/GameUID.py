@@ -3,10 +3,6 @@ import time
 import uuid
 import threading
 
-"""
-生成唯一id
-"""
-
 # 每秒生成多少个
 PER_SEC_GEN = 1024
 # 最大存储量 10w 大概4M左右
@@ -17,7 +13,9 @@ GUID_BUFFER = []
 GUIDLock = threading.Lock()
 
 def _gen_uuid():
-    "生成uuid"
+    '''
+    生成uuid
+    '''
     if len(GUID_BUFFER) > MAX_BUFFER_UUID:
         return
     for x in xrange(PER_SEC_GEN):
@@ -25,7 +23,9 @@ def _gen_uuid():
         GUID_BUFFER.append(uid)
 
 def get_uuid():
-    "获得uuid"
+    '''
+    获得uuid
+    '''
     with GUIDLock:
         if len(GUID_BUFFER) <= 0:
             # 要是不够了就生成一下

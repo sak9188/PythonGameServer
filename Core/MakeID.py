@@ -5,7 +5,7 @@ import cPickle as pickle
 # 这里记录了所有的ID
 ID_Table = {}
 
-# 每1w个做一次分割 最大为 21亿
+# 每1w个做一次分割 最大为 21(2^32)亿
 # 其中0-10w个为预留id, 主要是为了给手动分配id的设置的( 以好接入其他系统 )
 # Q:为啥是10w?
 # A:10w > 65535
@@ -26,6 +26,7 @@ class IDClass(object):
 	def __init__(self, name, value):
 		self.name = name
 		self.value = value
+
 
 class IDCollection:
 	def __init__(self):
