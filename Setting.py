@@ -10,6 +10,7 @@ WorldSever = ('localhost', 9090)
 MainServer = ('localhost', 9190)
 
 # 这里是服务器网关进程组
+# 由于是第一次搞服务器这样, 先使用第一个网关
 GateServers = [('localhost', 9290),
 				('localhost', 9291),
 				('localhost', 9292),

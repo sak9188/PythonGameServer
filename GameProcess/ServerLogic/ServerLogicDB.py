@@ -19,3 +19,5 @@ def create_role(*conns):
 @sql_exe_fun
 def save_role(*conns):
 	pass
+
+print('print ServerLogic DB')

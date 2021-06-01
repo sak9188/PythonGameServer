@@ -4,7 +4,7 @@ import asyncore
 import time
 import socket
 from Core.Extent.sortedcontainers import SortedDict
-from Core import GameTime
+from Core import GameTime, ImportTool
 from Core import Packer
 from GameMessage import Message
 from Core import Constant
@@ -81,6 +81,7 @@ class GameServer(asyncore.dispatcher, NetServer):
 		self.reuse_ids = []
 		self.connects = {}
 		self.process_type = process_type
+		self.is_run = False
 		# 会话id，用来标识sock
 		self.id = self.get_session_id()
 		# 当前时间
@@ -88,7 +89,13 @@ class GameServer(asyncore.dispatcher, NetServer):
 		# 注册时延的dict
 		self.tick_fun = SortedDict()
 		# 线程相关
+		if not self.before_run():
+			# 起服失败直接溜溜球
+			return
+		self.is_run = True
 		self.thread = threading.Thread(target=self.run)
+		# 主线程挂掉以后网络线程也会挂掉
+		self.thread.setDaemon(True)
 		self.thread.start()
 		GameServer.Instance = self
 
@@ -115,8 +122,7 @@ class GameServer(asyncore.dispatcher, NetServer):
 				self.remove_session(reuse_id)
 				self.reuse_ids.append(reuse_id)
 				return
-			# TODO 这里要单独分到一个独立的模块里
-			self.handle_reg_msg(msg_id, *msg_body)
+			Message.handle_reg_msg(msg_id, *msg_body)
 	
 	def run(self):
 		# 注册消息
@@ -184,5 +190,33 @@ class GameServer(asyncore.dispatcher, NetServer):
 	def after_connect(self, p):
 		print("after_connect", p)
 
+	def before_run(self):
+		'''
+		起服之前要干的活
+		'''
+		process_type = self.process_type
 
-import Core.ImportTool
+		# 先尝试从Dict拿到对应的模块
+		global ProcessDict
+
+		mod_string = ProcessDict.get(process_type)
+		if mod_string is None:
+			return False
+		
+		# 在这里载入脚本
+		ImportTool.load_script([mod_string,])
+		
+		return True
+	
+	def before_close(self):
+		'''
+		在关服之前
+		'''
+		pass
+
+# 这里定义了有关进程相关的字典
+ProcessDict = {
+	'MainServer': 'GameProcess.ServerLogic',
+	'GateServer': 'GameProcess.GateLogic',
+	'DBServer': 'GameProcess.DBLogic'
+}

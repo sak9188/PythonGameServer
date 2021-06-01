@@ -26,6 +26,6 @@ if __name__ == "__main__":
 		if opt == "-p":
 			GS = PyServer.GameServer(Setting.MainServer, arg)
 
-	if GS:
+	if GS.is_run:
 		message_loop(GS)
 	

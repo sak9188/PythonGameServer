@@ -38,7 +38,7 @@ def package_contents(package_name, path=['.']):
 	return module_set
 
 
-def load_script():
+def load_script(module_string_list):
 	'''
 	这个函数只有在根目录下启动才有作用
 	模块预载
@@ -50,8 +50,9 @@ def load_script():
 		"Core",
 		"GameDB",
 		"GameEvent",
-		"GameProcess.ServerLogic"
 	]
+
+	must_loaded += module_string_list
 
 	module_set = set()
 	for module in must_loaded:
@@ -65,4 +66,5 @@ def load_script():
 	
 	return module_set
 
-load_script()
+# 下面是一个测试函数
+# load_script()
