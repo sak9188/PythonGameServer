@@ -73,6 +73,7 @@ class GameServer(asyncore.dispatcher, NetServer):
 			return
 		asyncore.dispatcher.__init__(self)
 		NetServer.__init__(self)
+		GameServer.Instance = self
 		self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
 		self.set_reuse_addr()
 		self.bind(connect_params)
@@ -97,7 +98,6 @@ class GameServer(asyncore.dispatcher, NetServer):
 		# 主线程挂掉以后网络线程也会挂掉
 		self.thread.setDaemon(True)
 		self.thread.start()
-		GameServer.Instance = self
 
 	def handle_accept(self):
 		pair = self.accept()
@@ -130,6 +130,11 @@ class GameServer(asyncore.dispatcher, NetServer):
 		Message.reg_msg_handler(Message.MS_Connect, self.after_connect)
 		# 主消息循环
 		asyncore.loop(timeout=0.01)
+	
+	def shutdown(self):
+		if not self.before_close():
+			return
+		self.is_run = False
 
 	def get_session_id(self):
 		if len(self.reuse_ids) > 0:
@@ -212,7 +217,7 @@ class GameServer(asyncore.dispatcher, NetServer):
 		'''
 		在关服之前
 		'''
-		pass
+		return True
 
 # 这里定义了有关进程相关的字典
 ProcessDict = {

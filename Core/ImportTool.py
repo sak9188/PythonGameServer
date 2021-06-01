@@ -2,8 +2,9 @@
 
 import imp
 import os
+import re
 import traceback
-
+import sys
 
 MODULE_EXTENSIONS = ('.py', '.pyc', '.pyo')
 def package_contents(package_name, path=['.']):
@@ -59,8 +60,14 @@ def load_script(module_string_list):
 		module_set.update(package_contents(module))
 	
 	for module_name in module_set:
+		if module_name.endswith('__init__'):
+			continue
+		if sys.modules.get(module_name):
+			# print "Already loaded ", module_name
+			continue
 		try:
-			__import__(module_name)
+			# print len(sys.modules)
+			module = __import__(module_name)
 		except:
 			traceback.print_exc()
 	

@@ -20,4 +20,4 @@ def create_role(*conns):
 def save_role(*conns):
 	pass
 
-print('print ServerLogic DB')
+print('***ServerLogicDB')

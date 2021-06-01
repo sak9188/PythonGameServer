@@ -7,7 +7,7 @@ import sys, getopt
 # 主线程处理消息
 # 网络线程主要负责收集消息
 def message_loop(GameServer):
-	while True:
+	while GameServer.is_run:
 		# 休息1毫秒
 		time.sleep(0.001)
 		GameServer.handle_message()
@@ -26,6 +26,6 @@ if __name__ == "__main__":
 		if opt == "-p":
 			GS = PyServer.GameServer(Setting.MainServer, arg)
 
-	if GS.is_run:
+	if GS:
 		message_loop(GS)
 	
