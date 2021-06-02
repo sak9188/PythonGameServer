@@ -4,7 +4,7 @@
 # 消息类型 2字节
 # 消息体 任意字节
 MessageHead = 4
-MessageType = 2
+MessageType = 8
 
 def get_size_msg_head():
 	return MessageHead + MessageType

@@ -22,19 +22,15 @@ def pack_msg(msg_type, msg_body):
 	# 注意到这里可能并不需要校验,因为TCP链接自带校验
 	# hash_sum = md5(dumps_bytes).digest()
 	# 注意: 这里是小端存储
-	msg = struct.pack("IH%ds" % len_bytes, len_bytes + Constant.MessageHead+Constant.MessageType, msg_type, dumps_bytes)
+	msg = struct.pack("<IQ%ds" % len_bytes, len_bytes + Constant.get_size_msg_head(), msg_type, dumps_bytes)
 	return msg
 
 
 def unpack(msg):
 	msg_size = get_pack_size(msg[:Constant.MessageHead])
-	msg_id = get_pack_msg_id(msg[Constant.MessageHead : Constant.MessageHead+Constant.MessageType])
-	msg_body_bytes = msg[Constant.MessageHead+Constant.MessageType : msg_size]
-	msg_body = pickle.loads(msg_body_bytes)
-	# msg_hash = msg[msg_size+6:]
-	# if md5(msg_body_bytes).digest() != msg_hash:
-	# 	print("unpack msg error happend!")
-	# 	return None, None
+	msg_id = get_pack_msg_id(msg[Constant.MessageHead:Constant.get_size_msg_head()])
+	msg_bytes = msg[Constant.get_size_msg_head():msg_size]
+	msg_body = pickle.loads(msg_bytes)
 	return msg_id, msg_body
 
 
@@ -45,4 +41,4 @@ def get_pack_size(size_bytes):
 
 def get_pack_msg_id(size_bytes):
 	assert len(size_bytes) == Constant.MessageType
-	return struct.unpack("H", size_bytes)[0]
+	return struct.unpack("Q", size_bytes)[0]

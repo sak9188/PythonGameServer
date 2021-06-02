@@ -1,92 +1,22 @@
 # -*- coding: UTF-8 -*-
+from GameNetwork import PassiveNetSide
 import threading
 import asyncore
-import time
-import socket
 from Core.Extent.sortedcontainers import SortedDict
-from Core import GameTime, ImportTool
-from Core import Packer
+from Core import ImportTool
 from GameMessage import Message
-from Core import Constant
-
-# 不知道这个锁有没有可能会被用到
-# ServerLock = threading.Lock()
-
-class NetServer(object):
-	def __init__(self):
-		self.id = 0
-		self.read_buffer = ''
-		self.write_buffer = ''
-		self.messages = []
-
-	def clear_buffer(self):
-		self.read_buffer = ''
-	
-	def can_get_msg(self):
-		if len(self.read_buffer) <= Constant.get_size_msg_head():
-			return False
-		msg_body_size = Packer.get_pack_size(self.read_buffer[:4])
-		msg_size = Constant.get_size_msg_head()+msg_body_size # 这里已经包括了头大小
-		return len(self.read_buffer) >= msg_size
-
-	def get_msg(self):
-		# 先拿前4个字节
-		if not self.can_get_msg():
-			return
-		msg_body_size = Packer.get_pack_size(self.read_buffer[:4])
-		msg_size = Constant.get_size_msg_head()+msg_body_size # 这里已经包括了头大小
-		msg = self.read_buffer[:msg_size]
-		self.read_buffer = self.read_buffer[msg_size:]
-		self.messages.append((self.id, msg))
 
 
-class Session(asyncore.dispatcher_with_send, NetServer):
-	def __init__(self, messages, sock, addr, session_id):
-		asyncore.dispatcher_with_send.__init__(self, sock)
-		NetServer.__init__(self)
-		self.messages = messages
-		self.addr = addr
-		self.id = session_id
-
-	def handle_read(self):
-		data = self.recv(8192)
-		if data:
-			self.read_buffer += data
-		self.get_msg()
-
-	def handle_close(self):
-		self.clear_buffer()
-		# 打包要退出的消息
-		msg = Packer.pack_msg(Message.MS_Disconnection, self.id)
-		self.messages.append((self.id, msg))
-		self.messages = []
-		self.id = 0
-		self.clear_buffer()
-		self.close()
-
-
-class GameServer(asyncore.dispatcher, NetServer):
+class GameServer(PassiveNetSide.BaseSever):
 	Instance = None
 
 	def __init__(self, connect_params, process_type):
 		if GameServer.Instance is not None:
 			return
-		asyncore.dispatcher.__init__(self)
-		NetServer.__init__(self)
+		PassiveNetSide.BaseSever.__init__(self, connect_params)
 		GameServer.Instance = self
-		self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
-		self.set_reuse_addr()
-		self.bind(connect_params)
-		self.listen(32)
-		self.start_sesssion_id = int(str(int(time.time()))[-3:])*10000
-		self.reuse_ids = []
-		self.connects = {}
+		# 进程类型
 		self.process_type = process_type
-		self.is_run = False
-		# 会话id，用来标识sock
-		self.id = self.get_session_id()
-		# 当前时间
-		self.server_time = GameTime.GameTime()
 		# 注册时延的dict
 		self.tick_fun = SortedDict()
 		# 线程相关
@@ -98,31 +28,6 @@ class GameServer(asyncore.dispatcher, NetServer):
 		# 主线程挂掉以后网络线程也会挂掉
 		self.thread.setDaemon(True)
 		self.thread.start()
-
-	def handle_accept(self):
-		pair = self.accept()
-		if pair is not None:
-			sock, addr = pair
-			print('Incoming connection from %s' % repr(addr))
-			session = Session(self.messages, sock, addr, self.get_session_id())
-			self.add_session(session)
-	
-	def handle_message(self):
-		if len(self.messages) <= 0:
-			return
-		# with ServerLock:
-		with self.server_time:
-			sid, msg = self.messages.pop(0)
-			msg_id, msg_body = Packer.unpack(msg)
-			# 这里要排除掉自己
-			if msg_id is None and sid != self.id:
-				# 如果此时解包消息出现了问题就断开链接
-				con = self.connects.get(sid)
-				reuse_id = con.handle_close()
-				self.remove_session(reuse_id)
-				self.reuse_ids.append(reuse_id)
-				return
-			Message.handle_reg_msg(msg_id, *msg_body)
 	
 	def run(self):
 		# 注册消息
@@ -135,22 +40,6 @@ class GameServer(asyncore.dispatcher, NetServer):
 		if not self.before_close():
 			return
 		self.is_run = False
-
-	def get_session_id(self):
-		if len(self.reuse_ids) > 0:
-			return self.reuse_ids.pop()
-		self.start_sesssion_id += 1
-		return self.start_sesssion_id
-
-	def add_session(self, session):
-		self.connects[session.id] = session
-	
-	def remove_session(self, session_id):
-		self.connects[session_id] = None
-	
-	def close_session(self, sid):
-		self.remove_session(sid)
-		self.reuse_ids.append(sid)
 	
 	def reg_tick(self, fun, args, secs):
 		# 支持小数，也就是支持毫秒
@@ -192,8 +81,8 @@ class GameServer(asyncore.dispatcher, NetServer):
 			for key in rm_list:
 				self.tick_fun.pop(key)
 	
-	def after_connect(self, p):
-		print("after_connect", p)
+	def after_connect(self, session, params):
+		print "after_connect", params
 
 	def before_run(self):
 		'''
@@ -218,6 +107,7 @@ class GameServer(asyncore.dispatcher, NetServer):
 		在关服之前
 		'''
 		return True
+
 
 # 这里定义了有关进程相关的字典
 ProcessDict = {

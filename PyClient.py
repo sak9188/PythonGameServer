@@ -1,12 +1,11 @@
 # -*- coding: UTF-8 -*-
 
+from GameMessage import Message
+from Core import Packer
 import asyncore, socket
 import threading
 import time
 import sys
-import Packer
-import Constant
-import StringIO
 import Setting
 
 MESSAGES = []
@@ -35,13 +34,14 @@ INPUT.start()
 
 class GameClient(asyncore.dispatcher):
 
-	def __init__(self, host, port):
+	def __init__(self, con_params):
 		asyncore.dispatcher.__init__(self)
 		self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
-		self.connetc_params = (host, port)
+		self.connetc_params = con_params
 		self.set_reuse_addr()
-		self.connect((host, port))
-		self.buffer = Packer.pack_msg(Constant.MS_Connect, 1)
+		self.connect(con_params)
+		print Message.MS_Connect
+		self.buffer = Packer.pack_msg(Message.MS_Connect, 1)
 
 	def handle_connect(self):
 		print("connection is success")
@@ -72,6 +72,6 @@ class GameClient(asyncore.dispatcher):
 		sys.exit()
 	
 
-client = GameClient(*Setting.MainServer)
+client = GameClient(Setting.MainServer)
 asyncore.loop(timeout=0.01)
 
