@@ -93,7 +93,6 @@ class BaseSever(asyncore.dispatcher, NetServer):
 		self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
 		self.set_reuse_addr()
 		self.bind(connect_params)
-		print 'connect_params', connect_params
 		self.listen(32)
 		# 这里是主动链接字典
 		self.initive_connects = {}
@@ -171,7 +170,7 @@ class BaseSever(asyncore.dispatcher, NetServer):
 		try:
 			process_client = InitiativeNetSide.ProcessClient(params, process_type)
 		except:
-			print 'Connecting to other process wrong'
+			print('Connecting to other process wrong, May Wrong Params')
 			return False
 
 		# TODO 这里肯定要改的， 因为这样就是1对1的关系了，如果后期网关进程多了起来这里是不好搞的

@@ -27,7 +27,7 @@ class BaseClient(asyncore.dispatcher):
 
 	def handle_connect(self):
 		self.connect_success = True
-		print 'Connecting Success'
+		print('Connecting Success')
 
 	def handle_close(self):
 		self.connect_success = False

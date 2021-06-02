@@ -20,7 +20,7 @@ def trigger_event(event_id, *params):
 	global RegFunDict
 	fun_set = RegFunDict.get(event_id)
 	if not fun_set:
-		print "not found event_id", event_id
+		print("not found event_id %d" % event_id)
 		return
 	for fun in fun_set:
 		fun(*params)
