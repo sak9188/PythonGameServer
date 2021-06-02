@@ -19,6 +19,9 @@ def reg_event(event_id, fun):
 def trigger_event(event_id, *params):
 	global RegFunDict
 	fun_set = RegFunDict.get(event_id)
+	if not fun_set:
+		print "not found event_id", event_id
+		return
 	for fun in fun_set:
 		fun(*params)
 
@@ -32,3 +35,4 @@ def allot_event_id(name, id_val=None):
 # =================================================
 AfterInitScript = allot_event_id('AfterInitScript')
 AfterInitServer = allot_event_id('AfterInitServer')
+BeforeLostClient = allot_event_id('BeforeLostClient')

@@ -24,7 +24,10 @@ if __name__ == "__main__":
 	GS = None
 	for opt, arg in opts:
 		if opt == "-p":
-			GS = PyServer.GameServer(Setting.MainServer, arg)
+			if arg == 'MainServer':
+				GS = PyServer.GameServer(Setting.MainServer, arg)
+			elif arg == 'GateServer':
+				GS = PyServer.GameServer(Setting.GateServer, arg)
 
 	if GS:
 		message_loop(GS)

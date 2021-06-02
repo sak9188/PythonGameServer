@@ -1,4 +1,5 @@
 # -*- coding: UTF-8 -*-
+from GameEvent import Event
 from GameNetwork import PassiveNetSide
 import threading
 import asyncore
@@ -31,8 +32,10 @@ class GameServer(PassiveNetSide.BaseSever):
 	
 	def run(self):
 		# 注册消息
-		Message.reg_msg_handler(Message.MS_Disconnection, self.close_session)
+		Message.reg_msg_handler(Message.MS_Disconnection, self.after_disconnect)
 		Message.reg_msg_handler(Message.MS_Connect, self.after_connect)
+		# 这里要触发事件
+		Event.trigger_event(Event.AfterInitServer, GameServer.Instance)
 		# 主消息循环
 		asyncore.loop(timeout=0.01)
 	
@@ -43,7 +46,7 @@ class GameServer(PassiveNetSide.BaseSever):
 	
 	def reg_tick(self, fun, args, secs):
 		# 支持小数，也就是支持毫秒
-		des_time = self.time_stamp + secs
+		des_time = self.server_time() + secs
 		fun_list = self.tick_fun.get(des_time)
 		if not fun_list:
 			self.tick_fun[secs] = [(fun, args),]
@@ -83,6 +86,9 @@ class GameServer(PassiveNetSide.BaseSever):
 	
 	def after_connect(self, session, params):
 		print "after_connect", params
+	
+	def after_disconnect(self, session, params):
+		print 'after disconnect'
 
 	def before_run(self):
 		'''
@@ -97,7 +103,8 @@ class GameServer(PassiveNetSide.BaseSever):
 		if mod_string is None:
 			return False
 		
-		# 在这里载入脚本
+		# 在这里载入脚本, 载入脚本的同时肯定也会注册事件
+		# 这里相当于注册事件了
 		ImportTool.load_script([mod_string,])
 		
 		return True

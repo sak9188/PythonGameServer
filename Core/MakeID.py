@@ -10,9 +10,10 @@ ID_Table = {}
 # Q:为啥是10w?
 # A:10w > 65535
 ID_STEP_MAX = 100000
+ID_STEP_SUB_MAX = 10000
 
 # 这里记录了每种不一样的id顺序
-ID_Name_Dict = {}
+ID_NameDict = {}
 
 # 这里记录了所有在使用的ID
 ID_InUse = set()
@@ -90,14 +91,14 @@ class AllotID(object):
 
 
 def init_module():
-	global ID_Name_Dict, ID_Table, ID_InUse
+	global ID_NameDict, ID_Table, ID_InUse
 
-	if not ID_Name_Dict:
+	if not ID_NameDict:
 		if os.path.isfile('./ID_Name.bin'):
 			with open('./ID_Name.bin', "rb") as f:
-				ID_Name_Dict = pickle.load(f)
+				ID_NameDict = pickle.load(f)
 		else:
-			ID_Name_Dict = {}
+			ID_NameDict = {}
 
 	if not ID_Table:
 		if os.path.isfile('./ID_Table.bin'):
@@ -124,8 +125,8 @@ def make_id_fun(fun_name):
 	"""
 	这里会根据函数的名字来确定AllotID对象
 	"""
-	global ID_Name_Dict
-	start_id = ID_Name_Dict.get(fun_name)
+	global ID_NameDict
+	start_id = ID_NameDict.get(fun_name)
 	if start_id is None:
 		start_id = reg_name(fun_name)
 	assert start_id
@@ -133,10 +134,10 @@ def make_id_fun(fun_name):
 
 
 def reg_name(fun_name):
-	global ID_Name_Dict
+	global ID_NameDict
 	start_id = 1
 
-	val_list = ID_Name_Dict.values()
+	val_list = ID_NameDict.values()
 	if val_list:
 		val_list.sort(key=lambda x: x)
 		for val in val_list:
@@ -146,7 +147,7 @@ def reg_name(fun_name):
 			break
 
 	# 这里放了命名空间
-	ID_Name_Dict[fun_name] = start_id
+	ID_NameDict[fun_name] = start_id
 	return start_id
 
 
@@ -173,10 +174,10 @@ def clear_trash_id():
 
 def save_table():
 	# 每次载入了所有脚本以后，就要保存的本地上
-	global ID_Name_Dict, ID_Table
+	global ID_NameDict, ID_Table
 
 	with open('./ID_Name.bin', "wb") as f:
-		pickle.dump(ID_Name_Dict, f)
+		pickle.dump(ID_NameDict, f)
 	with open('./ID_Table.bin', "wb") as f:
 		pickle.dump(ID_Table, f)
 

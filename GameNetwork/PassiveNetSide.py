@@ -1,12 +1,14 @@
 # -*- coding: UTF-8 -*-
 
 # 被动链接端 (服务端)
+from GameEvent import Event
 import asyncore
 import socket
 import Queue
 
 from GameMessage import Message
 from Core import Constant, GameTime, Packer
+from GameNetwork import InitiativeNetSide
 
 
 class NetServer:
@@ -62,7 +64,7 @@ class NetSession(asyncore.dispatcher_with_send, NetServer):
 		# 如果已经断开链接了的话
 		if not self.connected:
 			return
-		# TODO 这里要补一个事件，就是Before Disconnected
+		Event.trigger_event(Event.BeforeLostClient, self)
 		# 打包要退出的消息
 		message = Packer.pack_msg(Message.MS_Disconnection, self.id)
 		# 打包到消息内循环
@@ -91,6 +93,7 @@ class BaseSever(asyncore.dispatcher, NetServer):
 		self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
 		self.set_reuse_addr()
 		self.bind(connect_params)
+		print 'connect_params', connect_params
 		self.listen(32)
 		# 这里是主动链接字典
 		self.initive_connects = {}
@@ -116,7 +119,7 @@ class BaseSever(asyncore.dispatcher, NetServer):
 			self.add_session(session)
 	
 	def handle_message(self):
-		if self.messages.qsize <= 0:
+		if self.messages.empty():
 			return
 		with self.server_time:
 			session_id, msg = self.messages.get()
@@ -152,17 +155,26 @@ class BaseSever(asyncore.dispatcher, NetServer):
 	def remove_session(self, session_id):
 		self.passive_connects.pop(session_id)
 	
-	def close_session(self, sid):
-		session = self.remove_session(sid)
+	def close_session(self, session):
+		self.remove_session(session.id)
 		session.handle_close()
-		self.reuse_ids.append(sid)
+		self.reuse_ids.add(session.id)
 		del session
 	
 	def add_message(self, message):
 		self.messages.put(message)
 
-	def connect_to(self, params):
+	def connect_to(self, params, process_type):
 		'''
 		这里放链接参数，主要是控制链接到其他进程的
 		'''
-		pass
+		try:
+			process_client = InitiativeNetSide.ProcessClient(params, process_type)
+		except:
+			print 'Connecting to other process wrong'
+			return False
+
+		# TODO 这里肯定要改的， 因为这样就是1对1的关系了，如果后期网关进程多了起来这里是不好搞的
+		# 但是先搭个地基
+		self.initive_connects[process_type] = process_client
+		return True
