@@ -167,13 +167,11 @@ class BaseSever(asyncore.dispatcher, NetServer):
 		'''
 		这里放链接参数，主要是控制链接到其他进程的
 		'''
-		try:
+		process_client = self.initive_connects.get(process_type)
+		if process_client is None:
 			process_client = InitiativeNetSide.ProcessClient(params, process_type)
-		except:
-			print('Connecting to other process wrong, May Wrong Params')
-			return False
+			self.initive_connects[process_type] = process_client
 
 		# TODO 这里肯定要改的， 因为这样就是1对1的关系了，如果后期网关进程多了起来这里是不好搞的
 		# 但是先搭个地基
-		self.initive_connects[process_type] = process_client
-		return True
+		return process_client.start_connect()

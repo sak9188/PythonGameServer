@@ -85,10 +85,10 @@ class GameServer(PassiveNetSide.BaseSever):
 				self.tick_fun.pop(key)
 	
 	def after_connect(self, session, params):
-		print "after_connect", params
+		print("after_connect", params)
 	
 	def after_disconnect(self, session, params):
-		print 'after disconnect'
+		print('after disconnect')
 
 	def before_run(self):
 		'''

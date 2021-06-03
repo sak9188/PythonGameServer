@@ -20,4 +20,4 @@ from Core import MakeID, Packer
 
 if __name__ == '__main__':
 	msg = Packer.pack_msg(1, 'tset_string')
-	print Packer.unpack(msg)
+	print(Packer.unpack(msg))

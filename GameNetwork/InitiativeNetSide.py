@@ -15,7 +15,7 @@ class BaseClient(asyncore.dispatcher):
 		asyncore.dispatcher.__init__(self)
 		self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
 		self.set_reuse_addr()
-		self.connect(con_params)
+		# self.connect(con_params)
 		self.connetc_params = con_params
 		self.connect_success = False
 		self.read_buffer = ''
@@ -52,6 +52,13 @@ class BaseClient(asyncore.dispatcher):
 
 	def send_message(self, msg_id, msg_body):
 		self.message_queue.put(Packer.pack_msg(msg_id, msg_body))
+
+	def start_connect(self):
+		try:
+			self.connect(self.connetc_params)
+			return True
+		except:
+			return False
 
 
 class ProcessClient(BaseClient):

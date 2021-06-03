@@ -40,7 +40,6 @@ class GameClient(asyncore.dispatcher):
 		self.connetc_params = con_params
 		self.set_reuse_addr()
 		self.connect(con_params)
-		print Message.MS_Connect
 		self.buffer = Packer.pack_msg(Message.MS_Connect, 1)
 
 	def handle_connect(self):
@@ -73,5 +72,5 @@ class GameClient(asyncore.dispatcher):
 	
 
 client = GameClient(Setting.MainServer)
-asyncore.loop(timeout=0.01)
+asyncore.loop(timeout=0.001)
 
