@@ -169,9 +169,9 @@ class BaseSever(asyncore.dispatcher, NetServer):
 		'''
 		process_client = self.initive_connects.get(process_type)
 		if process_client is None:
-			process_client = InitiativeNetSide.ProcessClient(params, process_type)
+			process_client = InitiativeNetSide.ProcessClient(params, process_type, True)
 			self.initive_connects[process_type] = process_client
-
+		
 		# TODO 这里肯定要改的， 因为这样就是1对1的关系了，如果后期网关进程多了起来这里是不好搞的
 		# 但是先搭个地基
-		return process_client.start_connect()
+		return True

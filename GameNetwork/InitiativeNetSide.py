@@ -11,27 +11,35 @@ from GameMessage import Message
 
 class BaseClient(asyncore.dispatcher):
 
-	def __init__(self, con_params):
+	def __init__(self, con_params, reconnect):
 		asyncore.dispatcher.__init__(self)
 		self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
 		self.set_reuse_addr()
 		# self.connect(con_params)
 		self.connetc_params = con_params
 		self.connect_success = False
+		self.reconnect = reconnect
 		self.read_buffer = ''
 		self.write_buffer = ''
 		# 这里是写消息的队列
 		self.message_queue = Queue.Queue()
 		# TODO 这里的1要替换成链接的身份信息
 		self.send_message(Message.MS_Connect, 1)
+		self.connect(self.connetc_params)
 
 	def handle_connect(self):
 		self.connect_success = True
+		# 一定要设置为False
+		self.reconnect = False
 		print('Connecting Success')
 
 	def handle_close(self):
-		self.connect_success = False
-		self.close()
+		if self.reconnect:
+			self.connect(self.connetc_params)
+		else:
+			self.connect_success = False
+			print('Connecting Failed')
+			self.close()
 
 	def handle_read(self):
 		recvs = self.recv(8192)
@@ -53,16 +61,8 @@ class BaseClient(asyncore.dispatcher):
 	def send_message(self, msg_id, msg_body):
 		self.message_queue.put(Packer.pack_msg(msg_id, msg_body))
 
-	def start_connect(self):
-		try:
-			self.connect(self.connetc_params)
-			return True
-		except:
-			return False
-
 
 class ProcessClient(BaseClient):
-
-	def __init__(self, con_params, process_type):
-		BaseClient.__init__(self, con_params)
+	def __init__(self, con_params, process_type, reconnect=False):
+		BaseClient.__init__(self, con_params, reconnect)
 		self.process_type = process_type

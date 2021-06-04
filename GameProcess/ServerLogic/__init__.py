@@ -10,10 +10,10 @@ def after_init_server(gameserver):
 	'''
 	# 尝试链接GateServer
 	# 由于这里可能会链接失败, 所以这里要放一个延迟调用
-	connect_other_process(gameserver, Setting.GateServer, 'GateServer')
+	connect_other_process(gameserver)
 
-def connect_other_process(gameserver, *connect_params):
-	if not gameserver.connect_to(*connect_params):
-		gameserver.reg_tick(connect_other_process, (gameserver, connect_params), 0.1)
+def connect_other_process(gameserver):
+	gameserver.connect_to(Setting.GateServer, 'GateServer')
+
 
 Event.reg_event(Event.AfterInitServer, after_init_server)
