@@ -6,7 +6,7 @@ import asyncore
 from Core.Extent.sortedcontainers import SortedDict
 from Core import ImportTool
 from GameMessage import Message
-
+import datetime
 
 class GameServer(PassiveNetSide.BaseSever):
 	Instance = None
@@ -16,6 +16,8 @@ class GameServer(PassiveNetSide.BaseSever):
 			return
 		PassiveNetSide.BaseSever.__init__(self, connect_params)
 		GameServer.Instance = self
+		# 时间相关
+		self.last_time = self.server_time()
 		# 进程类型
 		self.process_type = process_type
 		# 注册时延的dict
@@ -57,22 +59,25 @@ class GameServer(PassiveNetSide.BaseSever):
 		return int(self.server_time())
 
 	def minutes(self):
-		# TODO 由上面的演化来
-		pass
+		return int(self.server_time()/60.)
 
 	def hours(self):
-		# TODO 由上面的演化来
-		pass
+		return int(self.server_time()/3600.)
 
 	def days(self):
-		# TODO 由上面的演化来
-		pass
+		return int(self.server_time()/86400.)
 
 	def update_time(self):
 		# 获得当前的时间, 触发当前时间Tick
 		# 如果服务器时间慢于服务器时间， 则会自动加速至现实时间
 		now_time = self.server_time.sync_real_time()
+		# print self.seconds()
+		# dateArray = datetime.datetime.fromtimestamp(now_time)
+		# otherStyleTime = dateArray.strftime("%Y-%m-%d %H:%M:%S")
 		with self.server_time:
+			# 有先执行AfterSecond
+			if self.last_time - now_time >= 1:
+				Event.trigger_event(Event.AfterSecond)
 			rm_list = []
 			for key, val in self.tick_fun.items():
 				if key > now_time:

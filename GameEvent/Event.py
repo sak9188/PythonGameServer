@@ -36,3 +36,4 @@ def allot_event_id(name, id_val=None):
 AfterInitScript = allot_event_id('AfterInitScript')
 AfterInitServer = allot_event_id('AfterInitServer')
 BeforeLostClient = allot_event_id('BeforeLostClient')
+AfterSecond = allot_event_id('AfterSecond')
