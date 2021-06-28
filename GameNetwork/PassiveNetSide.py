@@ -34,7 +34,7 @@ class NetServer:
 			return None
 		msg_size = Packer.get_pack_size(self.read_buffer[:Constant.MessageHead]) # 这里已经包括了头大小
 		msg = self.read_buffer[:msg_size]
-		print('len of msg is %d' % len(msg))
+		# print('len of msg is %d' % len(msg))
 		self.read_buffer = self.read_buffer[msg_size:]
 		return msg
 
@@ -167,10 +167,12 @@ class BaseSever(asyncore.dispatcher, NetServer):
 		'''
 		这里放链接参数，主要是控制链接到其他进程的
 		'''
-		process_client = self.initive_connects.get(process_type)
-		if process_client is None:
-			process_client = InitiativeNetSide.ProcessClient(params, process_type, True)
-			self.initive_connects[process_type] = process_client
+		process_clients = self.initive_connects.get(process_type)
+		process_client = InitiativeNetSide.ProcessClient(params, process_type, True)
+		if process_clients is None:
+			self.initive_connects[process_type] = [process_client,]
+		else:
+			process_clients.append(process_client)
 		
 		# TODO 这里肯定要改的， 因为这样就是1对1的关系了，如果后期网关进程多了起来这里是不好搞的
 		# 但是先搭个地基

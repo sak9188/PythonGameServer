@@ -44,7 +44,8 @@ def handle_reg_msg(msg_id, *args):
 
 # ==============================
 # 这里分配消息
-# ==============================
+# ==============================MS
 MS_HeartBeat = allot_msg_id("心跳")
 MS_Connect = allot_msg_id("链接服务器")
 MS_Disconnection = allot_msg_id("断开链接")
+MS_AddGateWayProcess = allot_msg_id("添加网关进程链接")

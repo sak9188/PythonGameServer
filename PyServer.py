@@ -6,7 +6,6 @@ import asyncore
 from Core.Extent.sortedcontainers import SortedDict
 from Core import ImportTool
 from GameMessage import Message
-import datetime
 
 class GameServer(PassiveNetSide.BaseSever):
 	Instance = None
@@ -127,3 +126,9 @@ ProcessDict = {
 	'GateServer': 'GameProcess.GateLogic',
 	'DBServer': 'GameProcess.DBLogic'
 }
+
+def get_server():
+	"""
+	获得游戏服务器
+	"""
+	return GameServer.Instance

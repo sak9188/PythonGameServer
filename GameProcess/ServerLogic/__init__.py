@@ -13,6 +13,7 @@ def after_init_server(gameserver):
 	connect_other_process(gameserver)
 
 def connect_other_process(gameserver):
+	# 这里相当于一个主GateServer， 主要做负载均衡
 	gameserver.connect_to(Setting.GateServer, 'GateServer')
 
 

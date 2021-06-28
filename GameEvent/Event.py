@@ -26,14 +26,15 @@ def trigger_event(event_id, *params):
 		fun(*params)
 
 
-def allot_event_id(name, id_val=None):
+def allot_event_id(name, desc, id_val=None):
 	global Allot
 	return Allot.allot_id(name, id_val)
 
 # =================================================
 # 下面是事件定义id
 # =================================================
-AfterInitScript = allot_event_id('AfterInitScript')
-AfterInitServer = allot_event_id('AfterInitServer')
-BeforeLostClient = allot_event_id('BeforeLostClient')
-AfterSecond = allot_event_id('AfterSecond')
+AfterInitScript = allot_event_id('AfterInitScript', '初始化脚本以后')
+AfterInitServer = allot_event_id('AfterInitServer', '初始化服务器以后')
+BeforeLostClient = allot_event_id('BeforeLostClient', '在失去链接以前')
+AfterSecond = allot_event_id('AfterSecond', '一秒种以后')
+AfterLostProcess = allot_event_id('AfterLostProcess', '在失去进程链接以后')
