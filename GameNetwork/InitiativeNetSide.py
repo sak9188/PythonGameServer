@@ -36,6 +36,7 @@ class BaseClient(asyncore.dispatcher):
 		self.is_reconnect = self.reconnect
 		self.read_buffer = ''
 		self.write_buffer = ''
+		# TODO 这里的cleaer有问题
 		self.message_queue.clear()
 		self.send_message(Message.MS_Connect, 1)
 		self.connect(self.connetc_params)

@@ -89,10 +89,10 @@ class GameServer(PassiveNetSide.BaseSever):
 				self.tick_fun.pop(key)
 	
 	def after_connect(self, session, params):
-		print("after_connect", params)
+		Event.trigger_event(Event.AfterConnectServer, session, params)
 	
 	def after_disconnect(self, session, params):
-		print('after disconnect')
+		Event.trigger_event(Event.AfterConnectServer, session, params)
 
 	def before_run(self):
 		'''
@@ -111,6 +111,8 @@ class GameServer(PassiveNetSide.BaseSever):
 		# 这里相当于注册事件了
 		ImportTool.load_script([mod_string,])
 		
+		# 载入脚本以后需要写入本地消息缓存
+		Event.trigger_event(Event.AfterInitScript)
 		return True
 	
 	def before_close(self):

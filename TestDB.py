@@ -18,6 +18,28 @@ from Core import MakeID, Packer
 
 # MakeID.save_table()
 
+from Core.Extent.sortedcontainers import SortedList
+
+def a():
+	pass
+
+def b():
+	pass
+
+def c():
+	pass
+
+def d():
+	pass
+
 if __name__ == '__main__':
-	msg = Packer.pack_msg(1, 'tset_string')
-	print(Packer.unpack(msg))
+	# msg = Packer.pack_msg(1, 'tset_string')
+	# print(Packer.unpack(msg))
+	l = SortedList(key=lambda x: x[0])
+
+	l.add((1, a))
+	l.add((45, c))
+	l.add((2, d))
+	l.add((-1, b))
+
+	print l

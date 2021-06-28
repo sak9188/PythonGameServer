@@ -171,6 +171,8 @@ class BaseSever(asyncore.dispatcher, NetServer):
 		process_client = InitiativeNetSide.ProcessClient(params, process_type, True)
 		if process_clients is None:
 			self.initive_connects[process_type] = [process_client,]
+			# 第一个链接进程必定是主进程
+			process_client.set_master(True)
 		else:
 			process_clients.append(process_client)
 		

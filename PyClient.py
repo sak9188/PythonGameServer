@@ -71,6 +71,7 @@ class GameClient(asyncore.dispatcher):
 		sys.exit()
 	
 
-client = GameClient(Setting.MainServer)
+# 这里链接主网关进程
+client = GameClient(Setting.GateServer)
 asyncore.loop(timeout=0.001)
 
