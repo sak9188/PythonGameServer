@@ -6,6 +6,7 @@ import asyncore
 from Core.Extent.sortedcontainers import SortedDict
 from Core import ImportTool
 from GameMessage import Message
+import Setting
 
 class GameServer(PassiveNetSide.BaseSever):
 	Instance = None
@@ -19,6 +20,8 @@ class GameServer(PassiveNetSide.BaseSever):
 		self.last_time = self.server_time()
 		# 进程类型
 		self.process_type = process_type
+		# 同时这里要将一些信息写入一个公共模块进行存储
+		Setting.ProcessType = process_type
 		# 注册时延的dict
 		self.tick_fun = SortedDict()
 		# 线程相关

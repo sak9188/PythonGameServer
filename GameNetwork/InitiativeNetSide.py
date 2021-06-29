@@ -1,6 +1,7 @@
 # -*- coding: UTF-8 -*-
 
 # 主动链接端 (客户端)
+from Core.Process import ProcessHelp
 from GameEvent import Event
 import asyncore
 import socket
@@ -8,11 +9,11 @@ import Queue
 
 from Core import Packer
 from GameMessage import Message
-
+import Setting
 
 class BaseClient(asyncore.dispatcher):
 
-	def __init__(self, con_params, reconnect):
+	def __init__(self, con_params, reconnect, identity):
 		asyncore.dispatcher.__init__(self)
 		self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
 		self.set_reuse_addr()
@@ -25,8 +26,8 @@ class BaseClient(asyncore.dispatcher):
 		self.write_buffer = ''
 		# 这里是写消息的队列
 		self.message_queue = Queue.Queue()
-		# TODO 这里的1要替换成链接的身份信息
-		self.send_message(Message.MS_Connect, 1)
+		# identity 是身份信息
+		self.send_message(Message.MS_Connect, identity)
 		self.connect(self.connetc_params)
 	
 	def reset_connect(self):
@@ -36,8 +37,7 @@ class BaseClient(asyncore.dispatcher):
 		self.is_reconnect = self.reconnect
 		self.read_buffer = ''
 		self.write_buffer = ''
-		# TODO 这里的cleaer有问题
-		self.message_queue.clear()
+		self.message_queue.queue.clear()
 		self.send_message(Message.MS_Connect, 1)
 		self.connect(self.connetc_params)
 
@@ -91,7 +91,9 @@ class BaseClient(asyncore.dispatcher):
 
 class ProcessClient(BaseClient):
 	def __init__(self, con_params, process_type, reconnect=False):
-		BaseClient.__init__(self, con_params, reconnect)
+		# TODO 这里可能需要进程id, 进程id在数据库里, 后面再看吧
+		identity = {'process_type': Setting.ProcessType, 'os': ProcessHelp.get_process_os_string()}
+		BaseClient.__init__(self, con_params, reconnect, identity)
 		self.process_type = process_type
 		# 这里的Master指代Gateway中的管理进程
 		self.is_master = False

@@ -1,5 +1,9 @@
 # -*- coding: UTF-8 -*-
 
+
+# 这里是公共信息模块
+ProcessType = None
+
 # 这里是数据库链接参数
 ConnectParams = ("localhost", 3306, "root", "hkkk")
 
