@@ -24,11 +24,13 @@ if __name__ == "__main__":
 	GS = None
 	for opt, arg in opts:
 		if opt == "-p":
-			if arg == 'MainServer':
+			if arg == Setting.sMainServer:
 				GS = PyServer.GameServer(Setting.MainServer, arg)
-			elif arg == 'GateServer':
+			elif arg == Setting.sGateServer:
 				GS = PyServer.GameServer(Setting.GateServer, arg)
-
+			# 要先判断是否是主进程， 然后在判断是不是子进程
+			elif arg.startswith(Setting.sGateServer):
+				GS = PyServer.GameServer(Setting.GateServer, arg, False)
 	if GS:
 		message_loop(GS)
 	

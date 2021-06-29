@@ -15,6 +15,7 @@ def after_lsot_process(process):
 	"""
 	当丢失进程链接以后
 	"""
+	print('lost process')
 	if process.process_type != "GateServer":
 		return
 

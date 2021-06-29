@@ -1,8 +1,21 @@
 # -*- coding: UTF-8 -*-
 
 
+# 主进程的名字
+sMainServer = 'MainServer'
+sGateServer = 'GateServer'
+sDBServer = 'DBServer'
+
+# 这里定义了有关进程相关的字典
+ProcessDict = {
+	sMainServer: 'GameProcess.ServerLogic',
+	sGateServer: 'GameProcess.GateLogic',
+	sDBServer: 'GameProcess.DBLogic'
+}
+
 # 这里是公共信息模块
 ProcessType = None
+IsMaster = None
 
 # 这里是数据库链接参数
 ConnectParams = ("localhost", 3306, "root", "hkkk")

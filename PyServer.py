@@ -11,7 +11,7 @@ import Setting
 class GameServer(PassiveNetSide.BaseSever):
 	Instance = None
 
-	def __init__(self, connect_params, process_type):
+	def __init__(self, connect_params, process_type, is_master=True):
 		if GameServer.Instance is not None:
 			return
 		PassiveNetSide.BaseSever.__init__(self, connect_params)
@@ -20,8 +20,11 @@ class GameServer(PassiveNetSide.BaseSever):
 		self.last_time = self.server_time()
 		# 进程类型
 		self.process_type = process_type
+		self.master = is_master
 		# 同时这里要将一些信息写入一个公共模块进行存储
 		Setting.ProcessType = process_type
+		Setting.IsMaster = is_master
+		
 		# 注册时延的dict
 		self.tick_fun = SortedDict()
 		# 线程相关
@@ -104,9 +107,7 @@ class GameServer(PassiveNetSide.BaseSever):
 		process_type = self.process_type
 
 		# 先尝试从Dict拿到对应的模块
-		global ProcessDict
-
-		mod_string = ProcessDict.get(process_type)
+		mod_string = Setting.ProcessDict.get(process_type)
 		if mod_string is None:
 			return False
 		
@@ -124,13 +125,6 @@ class GameServer(PassiveNetSide.BaseSever):
 		'''
 		return True
 
-
-# 这里定义了有关进程相关的字典
-ProcessDict = {
-	'MainServer': 'GameProcess.ServerLogic',
-	'GateServer': 'GameProcess.GateLogic',
-	'DBServer': 'GameProcess.DBLogic'
-}
 
 def get_server():
 	"""

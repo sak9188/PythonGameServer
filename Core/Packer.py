@@ -31,6 +31,9 @@ def unpack(msg):
 	msg_id = get_pack_msg_id(msg[Constant.MessageHead:Constant.get_size_msg_head()])
 	msg_bytes = msg[Constant.get_size_msg_head():msg_size]
 	msg_body = pickle.loads(msg_bytes)
+	if len(msg_body) == 1:
+		# 这里直接将第一个参数给取出来
+		msg_body = msg_body[0]
 	return msg_id, msg_body
 
 
