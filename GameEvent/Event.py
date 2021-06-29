@@ -29,7 +29,10 @@ def trigger_event(event_id, *params):
 		return
 	for fun_data in fun_list:
 		_, fun = fun_data
-		fun(*params)
+		try:
+			fun(*params)
+		except Exception as e:
+			print(e)
 
 
 def allot_event_id(name, desc, id_val=None):

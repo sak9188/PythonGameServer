@@ -13,10 +13,15 @@ Allot = MakeID.make_id_fun("Message")
 # 消息注册列表
 MSG_HandlerDict = {}
 
+# 消息解释表
+MSG_Desc ={}
 
-def allot_msg_id(name, id_val=None):
+
+def allot_msg_id(name, desc, id_val=None):
 	global Allot
-	return Allot.allot_id(name, id_val)
+	msg_id = Allot.allot_id(name, id_val)
+	MSG_Desc[msg_id] = desc
+	return msg_id
 
 
 def reg_msg_handler(msg_id, fun):
@@ -26,7 +31,7 @@ def reg_msg_handler(msg_id, fun):
 	global MSG_HandlerDict
 	reg_fun = MSG_HandlerDict.get(msg_id)
 	if reg_fun:
-		print("already has function id%d" % msg_id)
+		print("already has reged function id%d" % msg_id)
 	MSG_HandlerDict[msg_id] = fun
 
 
@@ -45,7 +50,7 @@ def handle_reg_msg(msg_id, *args):
 # ==============================
 # 这里分配消息
 # ==============================MS
-MS_HeartBeat = allot_msg_id("心跳")
-MS_Connect = allot_msg_id("链接服务器")
-MS_Disconnection = allot_msg_id("断开链接")
-MS_AddGateWayProcess = allot_msg_id("添加网关进程链接")
+MS_HeartBeat = allot_msg_id('MS_HeartBeat', "心跳")
+MS_Connect = allot_msg_id('MS_Connect', "链接服务器")
+MS_Disconnection = allot_msg_id('MS_Disconnection', "断开链接")
+MS_AddGateWayProcess = allot_msg_id('MS_AddGateWayProcess', "添加网关进程链接")
