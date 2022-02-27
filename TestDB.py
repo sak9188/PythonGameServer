@@ -42,4 +42,4 @@ if __name__ == '__main__':
 	l.add((2, d))
 	l.add((-1, b))
 
-	print l
+	print("msg:", Packer.pack_msg(200004, "这是一条Unity测试信息！"))

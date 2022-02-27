@@ -45,3 +45,5 @@ def get_pack_size(size_bytes):
 def get_pack_msg_id(size_bytes):
 	assert len(size_bytes) == Constant.MessageType
 	return struct.unpack("Q", size_bytes)[0]
+
+

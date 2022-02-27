@@ -1,4 +1,6 @@
 # -*- coding: UTF-8 -*-
+from tkinter import Pack
+from xdrlib import Packer
 from GameEvent import Event
 from GameNetwork import PassiveNetSide
 import threading
@@ -39,6 +41,8 @@ class GameServer(PassiveNetSide.BaseSever):
 	
 	def run(self):
 		# 注册消息
+		# print('UnityMessageInt is:', Message.MS_TestUnityMessage, self.after_test_unity_message)
+		# print('PackMsgis is:',)
 		Message.reg_msg_handler(Message.MS_Disconnection, self.after_disconnect)
 		Message.reg_msg_handler(Message.MS_Connect, self.after_connect)
 		# 这里要触发事件
@@ -99,6 +103,9 @@ class GameServer(PassiveNetSide.BaseSever):
 	
 	def after_disconnect(self, session, params):
 		Event.trigger_event(Event.AfterConnectServer, session, params)
+
+	def after_test_unity_message(self, session, params):
+		print('get_message!')
 
 	def before_run(self):
 		'''
