@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 
 import struct
-import cPickle as pickle
+import pickle
 from Core import Constant
 # from hashlib import md5
 

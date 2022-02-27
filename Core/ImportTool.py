@@ -10,6 +10,9 @@ MODULE_EXTENSIONS = ('.py', '.pyc', '.pyo')
 def package_contents(package_name, path=['.']):
 	global MODULE_EXTENSIONS
 
+	if package_name == "__pycache__":
+		return
+
 	if package_name.find('.') >= 0:
 		path_list = package_name.split('.')
 		package_name = path_list[-1]

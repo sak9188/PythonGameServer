@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 import os
-import cPickle as pickle
+import pickle
 
 # 这里记录了所有的ID
 ID_Table = {}
@@ -109,7 +109,7 @@ def init_module():
 	
 	# 在这里载入所有的已经分配的int集合
 	clear_set = {}
-	for key, int_val in ID_Table.iteritems():
+	for key, int_val in ID_Table.items():
 		if int_val in ID_InUse:
 			print("replicated key % s" % key)
 			# 这里要清理垃圾集合
@@ -137,7 +137,7 @@ def reg_name(fun_name):
 	global ID_NameDict
 	start_id = 1
 
-	val_list = ID_NameDict.values()
+	val_list = list(ID_NameDict.values())
 	if val_list:
 		val_list.sort(key=lambda x: x)
 		for val in val_list:
@@ -163,7 +163,7 @@ def clear_trash_id():
 
 	# 如果不一样
 	trash_set = set()
-	for key, val in ID_Table.iteritems():
+	for key, val in ID_Table.items():
 		if not val in ID_RealUse:
 			trash_set.add(key)
 	

@@ -5,7 +5,7 @@ from Core.Process import ProcessHelp
 from GameEvent import Event
 import asyncore
 import socket
-import Queue
+import queue
 
 from Core import Packer
 from GameMessage import Message
@@ -25,7 +25,7 @@ class BaseClient(asyncore.dispatcher):
 		self.read_buffer = ''
 		self.write_buffer = ''
 		# 这里是写消息的队列
-		self.message_queue = Queue.Queue()
+		self.message_queue = queue.Queue()
 		self.identity = identity
 		# identity 是身份信息
 		self.send_message(Message.MS_Connect, identity)

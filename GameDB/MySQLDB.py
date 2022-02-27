@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 
-from DataType import DBDataType
-import DBCore
+from GameDB.DataType import DBDataType
+from GameDB import DBCore
 import collections
 
 

@@ -4,7 +4,7 @@
 from GameEvent import Event
 import asyncore
 import socket
-import Queue
+import queue
 
 from GameMessage import Message
 from Core import Constant, GameTime, Packer
@@ -107,7 +107,7 @@ class BaseSever(asyncore.dispatcher, NetServer):
 		self.start_sesssion_id = 0
 		self.reuse_ids = set()
 		# 消息队列
-		self.messages = Queue.Queue()
+		self.messages = queue.Queue()
 
 	def handle_accept(self):
 		pair = self.accept()
