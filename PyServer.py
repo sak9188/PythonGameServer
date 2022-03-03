@@ -33,7 +33,7 @@ class GameServer(PassiveNetSide.BaseSever):
 		self.tick_fun = SortedDict()
 		# 注册的Mgr类
 		self.reg_mgr_class = SortedList(key=lambda x: x[0])
-		self.mgr_class_list = []
+		self.mgr_obj_list = []
 		# 线程相关
 		if not self.before_run():
 			# 起服失败直接溜溜球
@@ -48,10 +48,10 @@ class GameServer(PassiveNetSide.BaseSever):
 		# 管理类
 		for _, reg_class in self.reg_mgr_class:
 			mgr_obj = reg_class()
-			self.mgr_class_list.append(mgr_obj)
-		# 这里要触发事件
-		Event.trigger_g_event(Event.AfterInitServer, GameServer.Instance)
-		# 主消息循环
+			self.mgr_obj_list.append(mgr_obj)
+		# 给所有管理类做一次初始化
+		self.do_all_mgr(lambda x: x.after_init_world())
+		# 网络类循环
 		asyncore.loop(timeout=0.01)
 	
 	def shutdown(self):
@@ -131,6 +131,10 @@ class GameServer(PassiveNetSide.BaseSever):
 		在关服之前
 		'''
 		return True
+
+	def do_all_mgr(self, fun):
+		for mgr in self.mgr_obj_list:
+			fun(mgr)
 
 
 def get_server():

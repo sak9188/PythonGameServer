@@ -10,6 +10,9 @@ class ClientMgr(LogicManagerBase):
 		self.reg_msg_hadler(Message.MS_Connect, self.after_connect_client)
 		self.reg_msg_hadler(Message.MS_Disconnect, self.after_disconnet_client)
 
+	def after_init_world(self):
+		print("after_init_world--- ClientMgr!!")
+
 	def after_connect_client(self, session_id, msg_body):
 		print("after_connect_client")
 

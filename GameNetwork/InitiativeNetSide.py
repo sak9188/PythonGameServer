@@ -8,6 +8,7 @@ import socket
 import queue
 
 from Core import Packer
+from GameEvent.EventHandler import EventHandlerBase
 from GameMessage import Message
 import Setting
 
@@ -90,7 +91,7 @@ class BaseClient(asyncore.dispatcher):
 		print('Connecting Success')
 
 
-class ProcessClient(BaseClient):
+class ProcessClient(BaseClient, EventHandlerBase):
 	def __init__(self, con_params, process_type, reconnect=False):
 		# TODO 这里可能需要进程id, 进程id在数据库里, 后面再看吧
 		identity = {'process_type': Setting.ProcessType,
@@ -108,4 +109,4 @@ class ProcessClient(BaseClient):
 		# 如果是主进程挂了， 则要主动去链接主进程
 		if self.is_master:
 			self.reset_connect()
-		Event.trigger_event(Event.AfterLostProcess, self)
+		self.trigger_event(Event.AfterLostProcess, self)

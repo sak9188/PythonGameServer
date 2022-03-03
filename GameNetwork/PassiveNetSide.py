@@ -173,12 +173,15 @@ class BaseSever(asyncore.dispatcher, NetServer):
 	def add_message(self, message):
 		self.messages.put(message)
 
-	def connect_to(self, params, process_type):
+	def connect_to(self, params, process_type, callback=None):
 		'''
 		这里放链接参数，主要是控制链接到其他进程的
 		'''
 		process_clients = self.initive_connects.get(process_type)
 		process_client = InitiativeNetSide.ProcessClient(params, process_type, True)
+		# 如果有回调的话就把回调扔进去
+		if callback: process_client.reg_event(Event.AfterLostProcess, callback)
+
 		if process_clients is None:
 			self.initive_connects[process_type] = [process_client,]
 			# 第一个链接进程必定是主进程

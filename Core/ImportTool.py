@@ -1,6 +1,7 @@
 # -*- coding: UTF-8 -*-
 
 import imp
+from importlib.resources import contents
 import os
 import traceback
 import sys
@@ -13,10 +14,12 @@ def package_contents(package_name, path=['.']):
 	if package_name == "__pycache__":
 		return
 
-	if package_name.find('.') >= 0:
+	if package_name.find('.') > 0:
 		path_list = package_name.split('.')
 		package_name = path_list[-1]
 		path.extend(path_list[:-1])
+	else:
+		return
 
 	try:
 		file, pathname, _ = imp.find_module(package_name, path)
@@ -59,8 +62,11 @@ def load_script(module_string_list):
 	must_loaded += module_string_list
 
 	module_set = set()
+	print(must_loaded)
 	for module in must_loaded:
-		module_set.update(package_contents(module))
+		contents = package_contents(module)
+		if contents:
+			module_set.update(contents)
 	
 	for module_name in module_set:
 		if module_name.endswith('__init__'):
