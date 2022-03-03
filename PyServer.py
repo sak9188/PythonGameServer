@@ -1,13 +1,14 @@
 # -*- coding: UTF-8 -*-
-from tkinter import Pack
-from xdrlib import Packer
-from GameEvent import Event
-from GameNetwork import PassiveNetSide
 import threading
 import asyncore
+
 from Core.Extent.sortedcontainers import SortedDict
 from Core import ImportTool
+from Core.Extent.sortedcontainers.sortedlist import SortedList
+from GameEvent import Event
+from GameNetwork import PassiveNetSide
 from GameMessage import Message
+
 import Setting
 
 class GameServer(PassiveNetSide.BaseSever):
@@ -15,6 +16,7 @@ class GameServer(PassiveNetSide.BaseSever):
 
 	def __init__(self, connect_params, process_type, is_master=True):
 		if GameServer.Instance is not None:
+			# 只能单线程
 			return
 		PassiveNetSide.BaseSever.__init__(self, connect_params)
 		GameServer.Instance = self
@@ -29,6 +31,9 @@ class GameServer(PassiveNetSide.BaseSever):
 		
 		# 注册时延的dict
 		self.tick_fun = SortedDict()
+		# 注册的Mgr类
+		self.reg_mgr_class = SortedList(key=lambda x: x[0])
+		self.mgr_class_list = []
 		# 线程相关
 		if not self.before_run():
 			# 起服失败直接溜溜球
@@ -40,13 +45,12 @@ class GameServer(PassiveNetSide.BaseSever):
 		self.thread.start()
 	
 	def run(self):
-		# 注册消息
-		# print('UnityMessageInt is:', Message.MS_TestUnityMessage, self.after_test_unity_message)
-		# print('PackMsgis is:',)
-		Message.reg_msg_handler(Message.MS_Disconnection, self.after_disconnect)
-		Message.reg_msg_handler(Message.MS_Connect, self.after_connect)
+		# 管理类
+		for _, reg_class in self.reg_mgr_class:
+			mgr_obj = reg_class()
+			self.mgr_class_list.append(mgr_obj)
 		# 这里要触发事件
-		Event.trigger_event(Event.AfterInitServer, GameServer.Instance)
+		Event.trigger_g_event(Event.AfterInitServer, GameServer.Instance)
 		# 主消息循环
 		asyncore.loop(timeout=0.01)
 	
@@ -63,6 +67,9 @@ class GameServer(PassiveNetSide.BaseSever):
 			self.tick_fun[secs] = [(fun, args),]
 		else:
 			fun_list.append((fun, args))
+
+	def reg_mgr(self, mgr_class, ord=1000):
+		self.reg_mgr_class.add((ord, mgr_class))
 	
 	def seconds(self):
 		return int(self.server_time())
@@ -86,6 +93,7 @@ class GameServer(PassiveNetSide.BaseSever):
 		with self.server_time:
 			# 有先执行AfterSecond
 			if self.last_time - now_time >= 1:
+				# TODO 这里可能需要修改一下
 				Event.trigger_event(Event.AfterSecond)
 			rm_list = []
 			for key, val in self.tick_fun.items():
@@ -97,15 +105,6 @@ class GameServer(PassiveNetSide.BaseSever):
 				rm_list.append(key)
 			for key in rm_list:
 				self.tick_fun.pop(key)
-	
-	def after_connect(self, session, params):
-		Event.trigger_event(Event.AfterConnectServer, session, params)
-	
-	def after_disconnect(self, session, params):
-		Event.trigger_event(Event.AfterConnectServer, session, params)
-
-	def after_test_unity_message(self, session, params):
-		print('get_message!')
 
 	def before_run(self):
 		'''
@@ -120,10 +119,11 @@ class GameServer(PassiveNetSide.BaseSever):
 		
 		# 在这里载入脚本, 载入脚本的同时肯定也会注册事件
 		# 这里相当于注册事件了
+		# TODO 这里还是换一种方式做
 		ImportTool.load_script([mod_string,])
 		
 		# 载入脚本以后需要写入本地消息缓存
-		Event.trigger_event(Event.AfterInitScript)
+		Event.trigger_g_event(Event.AfterInitScript)
 		return True
 	
 	def before_close(self):

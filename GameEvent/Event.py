@@ -11,28 +11,82 @@ RegFunDescDict = {}
 # 分配ID的对象
 Allot = MakeID.make_id_fun("Event")
 
-def reg_event(event_id, fun, oder=1000):
-	global RegFunDict
-	fun_list = RegFunDict.get(event_id)
-	if fun_list is None:
-		fun_list = SortedList(key=lambda x:x[0])
-		RegFunDict[event_id] = fun_list
-	fun_list.add((oder, fun))
+class EventDispacther(object):
+
+	def __init__(self):
+		self._reg_fun_dict = {}
+
+	"""
+	Property 注册
+	"""
+	@property
+	def reg_fun_dict(self):
+		return self._reg_fun_dict
+
+	@reg_fun_dict.setter
+	def reg_fun_dict(self, value):
+		self._reg_fun_dict = value
+	
+	"""
+	类方法
+	"""
+	@classmethod
+	def reg_g_event(cls, event_id, fun, oder=1000):
+		# 注册全局事件
+		global RegFunDict
+		fun_list = RegFunDict.get(event_id)
+		if fun_list is None:
+			fun_list = SortedList(key=lambda x:x[0])
+			RegFunDict[event_id] = fun_list
+		fun_list.add((oder, fun))
+
+	@classmethod
+	def trigger_g_event(cls, event_id, *params, **kwargs):
+		# 触发全局事件
+		global RegFunDict, RegFunDescDict
+		fun_list = RegFunDict.get(event_id)
+		if not fun_list:
+			desc = RegFunDescDict.get(event_id)
+			print("no reg event(%s) fun" % desc)
+			return
+		for fun_data in fun_list:
+			_, fun = fun_data
+			try:
+				fun(*params, **kwargs)
+			except Exception as e:
+				print(e)
+
+	def reg_event(self, event_id, fun, oder=1000):
+		fun_list = self.reg_fun_dict.get(event_id)
+		if fun_list is None:
+			fun_list = SortedList(key=lambda x:x[0])
+			RegFunDict[event_id] = fun_list
+		fun_list.add((oder, fun))
 
 
-def trigger_event(event_id, *params):
-	global RegFunDict, RegFunDescDict
-	fun_list = RegFunDict.get(event_id)
-	if not fun_list:
-		desc = RegFunDescDict.get(event_id)
-		print("no reg event(%s) fun" % desc)
-		return
-	for fun_data in fun_list:
-		_, fun = fun_data
-		try:
-			fun(*params)
-		except Exception as e:
-			print(e)
+	def trigger_event(self, event_id, *params):
+		global RegFunDescDict
+		fun_list = self.reg_fun_dict.get(event_id)
+		if not fun_list:
+			desc = RegFunDescDict.get(event_id)
+			print("no reg event(%s) fun" % desc)
+			return
+		for fun_data in fun_list:
+			_, fun = fun_data
+			try:
+				fun(*params)
+			except Exception as e:
+				print(e)
+
+
+def reg_g_event(event_id, fun, oder=1000):
+	# 注册全局函数
+	EventDispacther.reg_g_event(event_id, fun, ord)
+
+
+def trigger_g_event(event_id, *params, **kwargs):
+	# 触发全局函数
+	EventDispacther.trigger_g_event(event_id, *params, **kwargs)
 
 
 def allot_event_id(name, desc, id_val=None):

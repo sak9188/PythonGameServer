@@ -2,7 +2,6 @@
 
 import imp
 import os
-import re
 import traceback
 import sys
 
@@ -10,6 +9,7 @@ MODULE_EXTENSIONS = ('.py', '.pyc', '.pyo')
 def package_contents(package_name, path=['.']):
 	global MODULE_EXTENSIONS
 
+	# 兼容Python3
 	if package_name == "__pycache__":
 		return
 

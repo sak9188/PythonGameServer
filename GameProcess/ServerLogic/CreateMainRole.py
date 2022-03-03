@@ -1,3 +1,3 @@
 # -*- coding: UTF-8 -*-
 
-print('***test')
+print('>>> Load Module CreateMainRole')

@@ -11,7 +11,7 @@ def request_add_gateway(session, param):
 	server = PyServer.get_server()
 	server.connect_to(param, 'GateServer')
 
-def after_lsot_process(process):
+def after_lost_process(process):
 	"""
 	当丢失进程链接以后
 	"""
@@ -23,4 +23,4 @@ def after_lsot_process(process):
 Message.reg_msg_handler(Message.MS_AddGateWayProcess, request_add_gateway)
 
 # 事件注册
-Event.reg_event(Event.AfterLostProcess, after_lsot_process)
+Event.reg_g_event(Event.AfterLostProcess, after_lost_process)

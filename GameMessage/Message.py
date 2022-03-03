@@ -52,6 +52,6 @@ def handle_reg_msg(msg_id, *args):
 # ==============================MS
 MS_HeartBeat = allot_msg_id('MS_HeartBeat', "心跳")
 MS_Connect = allot_msg_id('MS_Connect', "链接服务器")
-MS_Disconnection = allot_msg_id('MS_Disconnection', "断开链接")
+MS_Disconnect = allot_msg_id('MS_Disconnect', "断开链接")
 MS_AddGateWayProcess = allot_msg_id('MS_AddGateWayProcess', "添加网关进程链接")
 MS_TestUnityMessage = allot_msg_id('MS_TestUnityMessage', "Unity消息测试")

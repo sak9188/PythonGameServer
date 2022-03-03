@@ -30,5 +30,5 @@ def after_load_scripts():
 
 
 # 事件
-Event.reg_event(Event.AfterInitServer, after_init_server)
-Event.reg_event(Event.AfterInitScript, after_load_scripts)
+Event.reg_g_event(Event.AfterInitServer, after_init_server)
+Event.reg_g_event(Event.AfterInitScript, after_load_scripts)

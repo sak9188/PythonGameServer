@@ -1,17 +1,17 @@
 # -*- coding: UTF-8 -*-
 
 # 被动链接端 (服务端)
-from GameEvent import Event
 import asyncore
 import socket
 import queue
 
-from GameMessage import Message
 from Core import Constant, GameTime, Packer
+from GameEvent import Event
+from GameMessage import Message
 from GameNetwork import InitiativeNetSide
 
 
-class NetServer:
+class NetServer(object):
 	'''
 	这个类定义了网络服务器的基本接口
 	'''
@@ -108,6 +108,11 @@ class BaseSever(asyncore.dispatcher, NetServer):
 		self.reuse_ids = set()
 		# 消息队列
 		self.messages = queue.Queue()
+		# 消息处理对象
+		self.msg_handlers = []
+
+	def add_handler(self, handler):
+		self.msg_handlers.append(handler)
 
 	def handle_accept(self):
 		pair = self.accept()
@@ -133,8 +138,13 @@ class BaseSever(asyncore.dispatcher, NetServer):
 				self.close_session(session)
 				session = None
 			# 处理消息的格式 msg_id, session, msg_body
-			Message.handle_reg_msg(msg_id, session, msg_body)
-	
+			# Message.handle_reg_msg(msg_id, session, msg_body)
+			self.handle_server_message(msg_id, session, msg_body)
+
+	def handle_server_message(self, msg_id, session, msg_body):
+		for handler in self.msg_handlers:
+			handler.handle_msg(msg_id, session, msg_body)
+
 	def get_session_id(self):
 		if len(self.reuse_ids) > 0:
 			return self.reuse_ids.pop()
